@@ -1,0 +1,18 @@
+Changelog
+=========
+
+This document describes changes between each past release. For information
+about future releases, check `milestones`_ and :doc:`/about/vision`.
+
+
+0.1 (unreleased)
+----------------
+
+- Nothing changed yet.
+
+
+.. rubric:: Notes & references
+
+.. target-notes::
+
+.. _`milestones`: https://github.com/novapost/django-ticketoffice/issues/milestones

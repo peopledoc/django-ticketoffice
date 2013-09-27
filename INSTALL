@@ -1,0 +1,12 @@
+############
+Installation
+############
+
+* Install project's distribution:
+
+  .. code:: sh
+
+     pip install -e git+ssh://git@github.com/novapost/django-ticketoffice.git#egg=django-ticketoffice
+
+* Add `django_ticketoffice` to your `settings.INSTALLED_APPS`.
+* Run `syncdb`.
