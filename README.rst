@@ -53,3 +53,5 @@ Resources
 *********
 
 * Code repository: https://github.com/novapost/django-ticketoffice
+* Bugtracker: https://github.com/novapost/django-ticketoffice/issues
+* Continuous integration: https://travis-ci.org/novapost/django-ticketoffice
