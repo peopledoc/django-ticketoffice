@@ -8,7 +8,9 @@ try:
 except ImportError:  # Python 2 fallback.
     import mock
 
+from django.conf import settings
 import django.test
+from django.test.utils import override_settings
 from django.utils.timezone import now
 from django.contrib.auth import hashers
 
@@ -17,6 +19,8 @@ from django_ticketoffice import exceptions
 from django_ticketoffice import forms
 from django_ticketoffice import managers
 from django_ticketoffice import models
+from django_ticketoffice import utils
+from django_ticketoffice.settings import TICKETOFFICE_PASSWORD_GENERATOR
 
 
 class APITestCase(unittest.TestCase):
@@ -37,6 +41,22 @@ class TicketModelTestCase(django.test.TestCase):
         """Ticket.objects uses custom TicketManager."""
         self.assertTrue(isinstance(models.Ticket.objects,
                                    managers.TicketManager))
+
+    @override_settings(
+        TICKETOFFICE_PASSWORD_GENERATOR=TICKETOFFICE_PASSWORD_GENERATOR)
+    def test_generate_password(self):
+        """Ticket.generate_password return random (clear) password."""
+        ticket = models.Ticket()
+        self.assertEqual(ticket.password, hashers.UNUSABLE_PASSWORD)
+        generate_password_mock = mock.Mock(return_value=mock.sentinel.password)
+        with mock.patch('django_ticketoffice.utils.random_password',
+                        new=generate_password_mock):
+            password = ticket.generate_password()
+        self.assertNotEqual(ticket.password, hashers.UNUSABLE_PASSWORD)
+        generate_password_mock.assert_called_once_with(
+            *TICKETOFFICE_PASSWORD_GENERATOR[1],
+            **TICKETOFFICE_PASSWORD_GENERATOR[2])
+        self.assertEqual(password, mock.sentinel.password)
 
 
 class TicketManagerTestCase(django.test.TestCase):
@@ -347,3 +367,17 @@ class InvitationRequiredTestCase(unittest.TestCase):
         self.assertEqual(response, self.unauthorized_view.return_value)
         self.assertFalse(self.authorized_view.called)
         self.assertFalse(self.forbidden_view.called)
+
+
+def SettingsTestCase(self):
+    """Test suite around django.conf.settings."""
+    def test_password_generator(self):
+        """settings.TICKETOFFICE_PASSWORD_GENERATOR has default value."""
+        self.assertTrue(settings.TICKETOFFICE_PASSWORD_GENERATOR)
+
+    def test_password_generator_default(self):
+        "django_ticketoffice.settings.TICKETOFFICE_PASSWORD_GENERATOR works."
+        import_path, args, kwargs = TICKETOFFICE_PASSWORD_GENERATOR
+        generator = utils.import_member(import_path)
+        password = generator(args, kwargs)
+        self.assertTrue(password)

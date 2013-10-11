@@ -9,6 +9,8 @@ from jsonfield import JSONField
 from uuidfield import UUIDField
 
 from django_ticketoffice.managers import TicketManager
+from django_ticketoffice import settings
+from django_ticketoffice.utils import import_member
 
 
 class Ticket(models.Model):
@@ -56,6 +58,20 @@ class Ticket(models.Model):
 
         """
         self.password = hashers.make_password(clear_password)
+
+    def generate_password(self):
+        """Generate password, set :py:attr:`password` and return clear value.
+
+        Uses ``settings.TICKETOFFICE_PASSWORD_GENERATOR``.
+
+        Does not save the instance.
+
+        """
+        import_path, args, kwargs = settings.TICKETOFFICE_PASSWORD_GENERATOR
+        generator = import_member(import_path)
+        clear_password = generator(*args, **kwargs)
+        self.set_password(clear_password)
+        return clear_password
 
     def authenticate(self, clear_password):
         """Return `True` if encrypted password matches `clear_password`."""
