@@ -19,6 +19,18 @@ from django_ticketoffice import managers
 from django_ticketoffice import models
 
 
+class APITestCase(unittest.TestCase):
+    """Test suite around :py:module:`django_ticketoffice` API.
+
+    This test suite mostly guarantees backward compatibility (i.e. make use the
+    API does not change unless explicitely desired).
+
+    """
+    def test_ticket(self):
+        """Import Ticket from django_ticketoffice."""
+        from django_ticketoffice import Ticket  # NoQA
+
+
 class TicketModelTestCase(django.test.TestCase):
     """Test suite around `django_ticketoffice.models.Ticket`."""
     def test_manager(self):
