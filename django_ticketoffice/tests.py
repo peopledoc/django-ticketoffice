@@ -320,7 +320,7 @@ class InvitationRequiredTestCase(unittest.TestCase):
         invitation.uuid = fake_uuid
         self.assertTrue(invitation.is_valid())
         self.request.session = {}
-        self.request.GET = mock.sentinel.query_string
+        self.request.GET = mock.MagicMock()
         form_mock = mock.Mock()
         form_mock.is_valid.return_value = True
         form_mock.instance = invitation
@@ -340,7 +340,7 @@ class InvitationRequiredTestCase(unittest.TestCase):
         "invitation_required() with invalid credentials returns 403."
         # Setup.
         self.request.session = {}
-        self.request.GET = mock.sentinel.query_string
+        self.request.GET = mock.MagicMock()
         form_mock = mock.Mock()
         form_mock.is_valid.return_value = False
         form_class_mock = mock.Mock(return_value=form_mock)

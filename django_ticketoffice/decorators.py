@@ -68,7 +68,12 @@ def invitation_required(place=u'', purpose=u'',
                 invitation_uuid = request.session['invitation']
             except KeyError:  # No invitation in session, check credentials.
                 if request.GET:
-                    form = TicketAuthenticationForm(data=request.GET,
+                    data = request.GET.dict()
+                    if '-' in data['uuid']:
+                        # Support UUID with dashes.
+                        # In DB, UUID has no dashes.
+                        data['uuid'] = data['uuid'].replace('-', '')
+                    form = TicketAuthenticationForm(data=data,
                                                     place=place,
                                                     purpose=purpose)
                     if form.is_valid():
