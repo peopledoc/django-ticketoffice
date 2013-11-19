@@ -7,7 +7,8 @@ from django.utils.decorators import available_attrs
 
 from django_ticketoffice.forms import TicketAuthenticationForm
 from django_ticketoffice.models import Ticket, GuestUser
-from django_ticketoffice.utils import UnauthorizedView, ForbiddenView
+from django_ticketoffice.utils import (UnauthorizedView, ForbiddenView,
+                                       Decorator)
 
 
 unauthorized_view = UnauthorizedView.as_view(
@@ -32,10 +33,7 @@ def guest_login(request, invitation):
         pass
 
 
-def invitation_required(place=u'', purpose=u'',
-                        unauthorized=unauthorized_view,
-                        forbidden=forbidden_view,
-                        login=guest_login):
+class invitation_required(Decorator):
     """Make sure invitation is provided for place and purpose.
 
     Here is the invitation validation scenario:
@@ -61,42 +59,52 @@ def invitation_required(place=u'', purpose=u'',
     invitations. User is invitated somewhere (place) to do something (purpose).
 
     """
-    def decorator(view_func):
-        @wraps(view_func, assigned=available_attrs(view_func))
-        def _wrapped_view(request, *args, **kwargs):
-            try:
-                invitation_uuid = request.session['invitation']
-            except KeyError:  # No invitation in session, check credentials.
-                if request.GET:
-                    data = request.GET.dict()
-                    if '-' in data['uuid']:
-                        # Support UUID with dashes.
-                        # In DB, UUID has no dashes.
-                        data['uuid'] = data['uuid'].replace('-', '')
-                    form = TicketAuthenticationForm(data=data,
-                                                    place=place,
-                                                    purpose=purpose)
-                    if form.is_valid():
-                        invitation = form.instance
-                        # Start guest session.
-                        request.session['invitation'] = invitation.uuid
-                        return HttpResponseRedirect(request.path)
-                    else:
-                        return forbidden(request)
+    def __init__(self,
+                 place,
+                 purpose,
+                 unauthorized=unauthorized_view,
+                 forbidden=forbidden_view,
+                 login=guest_login):
+        Decorator.__init__(self, func=Decorator.UNDEFINED_FUNCTION)
+        self.place = place
+        self.purpose = purpose
+        self.unauthorized = unauthorized
+        self.forbidden = forbidden
+        self.login = login
+
+    def run(self, request, *args, **kwargs):
+        try:
+            invitation_uuid = request.session['invitation']
+        except KeyError:  # No invitation in session, check credentials.
+            if request.GET:
+                data = request.GET.dict()
+                if '-' in data['uuid']:
+                    # Support UUID with dashes.
+                    # In DB, UUID has no dashes.
+                    data['uuid'] = data['uuid'].replace('-', '')
+                form = TicketAuthenticationForm(data=data,
+                                                place=self.place,
+                                                purpose=self.purpose)
+                if form.is_valid():
+                    invitation = form.instance
+                    # Start guest session.
+                    request.session['invitation'] = invitation.uuid
+                    return HttpResponseRedirect(request.path)
                 else:
-                    return unauthorized(request)
-            try:
-                invitation = Ticket.objects.get(uuid=invitation_uuid,
-                                                place=place, purpose=purpose)
-            except Ticket.DoesNotExist:
-                return forbidden(request)
-            if not invitation.is_valid():
-                return forbidden(request)
-            login(request, invitation)
-            # At last, return the "normal" view.
-            return view_func(request, *args, **kwargs)
-        return _wrapped_view
-    return decorator
+                    return self.forbidden(request)
+            else:
+                return self.unauthorized(request)
+        try:
+            invitation = Ticket.objects.get(uuid=invitation_uuid,
+                                            place=self.place,
+                                            purpose=self.purpose)
+        except Ticket.DoesNotExist:
+            return self.forbidden(request)
+        if not invitation.is_valid():
+            return self.forbidden(request)
+        self.login(request, invitation)
+        # At last, return the "normal" view.
+        return super(invitation_required, self).run(request, *args, **kwargs)
 
 
 def stamp_invitation(view_func):
