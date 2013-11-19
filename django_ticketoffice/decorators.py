@@ -59,18 +59,10 @@ class invitation_required(Decorator):
     invitations. User is invitated somewhere (place) to do something (purpose).
 
     """
-    def __init__(self,
-                 place,
-                 purpose,
-                 unauthorized=unauthorized_view,
-                 forbidden=forbidden_view,
-                 login=guest_login):
+    def __init__(self, place, purpose):
         Decorator.__init__(self, func=Decorator.UNDEFINED_FUNCTION)
         self.place = place
         self.purpose = purpose
-        self.unauthorized = unauthorized
-        self.forbidden = forbidden
-        self.login = login
 
     def run(self, request, *args, **kwargs):
         try:
@@ -95,16 +87,32 @@ class invitation_required(Decorator):
             else:
                 return self.unauthorized(request)
         try:
-            invitation = Ticket.objects.get(uuid=invitation_uuid,
-                                            place=self.place,
-                                            purpose=self.purpose)
+            self.ticket = Ticket.objects.get(uuid=invitation_uuid,
+                                             place=self.place,
+                                             purpose=self.purpose)
         except Ticket.DoesNotExist:
             return self.forbidden(request)
-        if not invitation.is_valid():
+        if not self.ticket.is_valid():
             return self.forbidden(request)
-        self.login(request, invitation)
-        # At last, return the "normal" view.
-        return super(invitation_required, self).run(request, *args, **kwargs)
+        return self.valid(request, *args, **kwargs)
+
+    def unauthorized(self, request, *args, **kwargs):
+        """Return response when credentials are missing (no invitation)."""
+        return unauthorized_view(request)
+
+    def forbidden(self, request, *args, **kwargs):
+        """Return response when ticket is not valid (expired, used, wrong
+        credentials)."""
+        return forbidden_view(request)
+
+    def login(self, request, *args, **kwargs):
+        """Log the user in when ticket is valid."""
+        return guest_login(request, self.ticket)
+
+    def valid(self, request, *args, **kwargs):
+        """Return response when ticket is valid."""
+        self.login(request, *args, **kwargs)
+        return Decorator.run(self, request, *args, **kwargs)
 
 
 def stamp_invitation(view_func):

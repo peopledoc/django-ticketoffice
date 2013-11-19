@@ -212,14 +212,12 @@ class InvitationRequiredTestCase(unittest.TestCase):
 
     def run_decorated_view(self, place=u'', purpose=u''):
         """Setup, decorate and call view, then return response."""
-        # Custom setup.
-
         # Get decorator.
         decorator = decorators.invitation_required(
             place=place,
-            purpose=purpose,
-            unauthorized=self.unauthorized_view,
-            forbidden=self.forbidden_view)
+            purpose=purpose)
+        decorator.unauthorized = self.unauthorized_view
+        decorator.forbidden = self.forbidden_view
         # Decorate view.
         decorated_view = decorator(self.authorized_view)
         # Return response.
