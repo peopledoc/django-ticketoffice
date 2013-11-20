@@ -187,10 +187,7 @@ class InvitationRequiredTestCase(unittest.TestCase):
 
     def test_valid_invitation_in_session(self):
         "invitation_required() with valid guest session runs decorated view."
-        # Setup:
-        #
-        # * fake invitation uuid in session
-        # * Ticket.objects.get() returns valid ticket.
+        # Setup.
         place = u'louvre'
         purpose = u'visit'
         fake_uuid = uuid.uuid4()
@@ -199,14 +196,17 @@ class InvitationRequiredTestCase(unittest.TestCase):
         self.assertTrue(invitation.is_valid())
         self.request.session = {'invitation': invitation}
         self.request.cache = {}
-        manager_mock = mock.Mock()
-        manager_mock.get = mock.Mock(return_value=invitation)
-        ticket_mock = mock.Mock()
-        ticket_mock.objects = manager_mock
-        with mock.patch('django_ticketoffice.decorators.Ticket',
-                        new=ticket_mock):
-            # Run.
-            response = self.run_decorated_view(place=place, purpose=purpose)
+        decorator = decorators.invitation_required(
+            place=place,
+            purpose=purpose)
+        decorator.get_ticket_from_credentials = mock.Mock(
+            side_effect=exceptions.NoTicketError)
+        decorator.get_ticket_from_session = mock.Mock(
+            return_value=invitation)
+        # Run.
+        response = decorator(self.authorized_view)(self.request,
+                                                   *self.request_args,
+                                                   **self.request_kwargs)
         # Check.
         self.authorized_view.assert_called_once_with(self.request,
                                                      *self.request_args,
@@ -224,26 +224,28 @@ class InvitationRequiredTestCase(unittest.TestCase):
         # * Ticket.objects.get() returns expired ticket.
         place = u'louvre'
         purpose = u'visit'
+        fake_uuid = uuid.uuid4()
         invitation = models.Ticket(place=place, purpose=purpose,
+                                   uuid=fake_uuid,
                                    expiry_datetime=now() - timedelta(days=2))
         self.assertFalse(invitation.is_valid())
-        fake_uuid = 'uuid'
-        self.request.session = {'invitation': fake_uuid}
-        manager_mock = mock.Mock()
-        manager_mock.get = mock.Mock(return_value=invitation)
-        ticket_mock = mock.Mock()
-        ticket_mock.objects = manager_mock
-        with mock.patch('django_ticketoffice.decorators.Ticket',
-                        new=ticket_mock):
-            # Run.
-            response = self.run_decorated_view(place=place, purpose=purpose)
+        decorator = decorators.invitation_required(
+            place=place,
+            purpose=purpose)
+        decorator.get_ticket_from_credentials = mock.Mock(
+            side_effect=exceptions.NoTicketError)
+        decorator.get_ticket_from_session = mock.Mock(
+            return_value=invitation)
+        decorator.forbidden = mock.Mock(return_value=mock.sentinel.forbidden)
+        request = mock.MagicMock()
+        request.session = {}
+        # Run.
+        response = decorator(self.authorized_view)(request)
         # Check.
-        self.forbidden_view.assert_called_once_with(self.request)
-        manager_mock.get.assert_called_once_with(uuid=fake_uuid,
-                                                 place=place, purpose=purpose)
-        self.assertEqual(response, self.forbidden_view.return_value)
-        self.assertFalse(self.authorized_view.called)
-        self.assertFalse(self.unauthorized_view.called)
+        self.assertEqual(response, mock.sentinel.forbidden)
+        decorator.get_ticket_from_credentials.assert_called_once_with(request)
+        decorator.get_ticket_from_session.assert_called_once_with(request)
+        decorator.forbidden.assert_called_once_with(request)
 
     def test_wrong_place_purpose_invitation_in_session(self):
         "invitation_required() with inappropriate guest session returns 403."
@@ -269,7 +271,7 @@ class InvitationRequiredTestCase(unittest.TestCase):
         self.assertFalse(self.unauthorized_view.called)
 
     def test_valid_invitation_in_get(self):
-        "invitation_required() with valid credentials returns 200."
+        "invitation_required() with valid credentials returns 302."
         # Setup.
         place = u'louvre'
         purpose = u'visit'
@@ -297,9 +299,10 @@ class InvitationRequiredTestCase(unittest.TestCase):
                 response = self.run_decorated_view(place=place,
                                                    purpose=purpose)
         # Check.
-        self.assertEqual(response, self.authorized_view.return_value)
-        self.assertEqual(self.request.session, {'invitation': invitation.uuid})
-        self.assertTrue(self.authorized_view.called)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.request.session,
+                         {'invitation': invitation.uuid})
+        self.assertFalse(self.authorized_view.called)
         self.assertFalse(self.unauthorized_view.called)
         self.assertFalse(self.forbidden_view.called)
 

@@ -2,6 +2,7 @@
 """View decorators."""
 from functools import wraps
 
+from django.http import HttpResponseRedirect
 from django.utils.decorators import available_attrs
 
 from django_ticketoffice import exceptions
@@ -38,25 +39,24 @@ class invitation_required(Decorator):
 
     Here is the invitation validation scenario:
 
-    1. If session holds a valid `invitation` instance, run decorated view.
+    1. Look for credentials passed in request's query string (GET)...
 
-    2. If session holds invalid (expired, used...) `invitation`, return
-       `forbidden` view.
-
-    3. If session does not hold `invitation`, looks for credentials passed in
-       request's query string (GET arguments)...
-
-       * if there are no credentials, return `unauthorized` view
+       * if there are no credentials, try 2/ (session)
 
        * if credentials match an invitation:
 
          * store invitation in session;
-         * redirect to same URL (go to cases 1/ or 2/).
+         * redirect to same URL (go to cases 2/).
 
        * else return `forbidden` view.
 
-    Additional arguments `place` and `purpose` are required to filter
-    invitations. User is invitated somewhere (place) to do something (purpose).
+    2. If session holds a valid `invitation` instance, run decorated view.
+
+    3. If session holds invalid (expired, used...) `invitation`, return
+       `forbidden` view.
+
+    Arguments `place` and `purpose` are required to filter invitations. User is
+    invited somewhere (place) to do something (purpose).
 
     """
     def __init__(self, place, purpose):
@@ -73,52 +73,71 @@ class invitation_required(Decorator):
                 exceptions.TicketUsedError,
                 exceptions.TicketExpiredError):
             return self.forbidden(request)
-        return self.valid(request, *args, **kwargs)
+        if 'invitation' not in request.session:
+            return self.redirect(request)
+        else:
+            self.login(request)
+            return self.valid(request, *args, **kwargs)
 
     def get_ticket(self, request):
         """Return ticket instance for ``request``."""
         try:
+            self.ticket = self.get_ticket_from_credentials(request)
+        except exceptions.NoTicketError:
+            self.ticket = self.get_ticket_from_session(request)
+        self.validate_ticket()
+
+    def get_ticket_from_session(self, request):
+        """Return ticket instance from ``request``'s session."""
+        try:
             invitation_uuid = request.session['invitation']
         except KeyError:  # No ticket in session, check credentials.
-            if request.GET:
-                form = TicketAuthenticationForm(data=request.GET,
-                                                place=self.place,
-                                                purpose=self.purpose)
-                if form.is_valid():
-                    # Support UUID with dashes. In DB, UUID has no dashes.
-                    data = form.cleaned_data
-                    if '-' in data['uuid']:
-                        data['uuid'] = data['uuid'].replace('-', '')
-                    try:
-                        self.ticket = Ticket.objects.get(uuid=data['uuid'],
-                                                         place=self.place,
-                                                         purpose=self.purpose)
-                    except Ticket.DoesNotExist:
-                        raise exceptions.CredentialsError(
-                            'No ticket with UUID="{uuid}" for place="{place}" '
-                            'and purpose="{purpose}" in database.'
-                            .format(
-                                uuid=data['uuid'],
-                                place=self.place,
-                                purpose=self.purpose))
-                    # Check password.
-                    if not self.ticket.authenticate(data['password']):
-                        raise exceptions.CredentialsError(
-                            'Wrong password for ticket with UUID="{uuid}"'
-                            .format(uuid=self.ticket.uuid))
-                else:
-                    raise exceptions.CredentialsError('Invalid credentials.')
-            else:
-                raise exceptions.NoTicketError('Missing ticket.')
-        else:  # Ticket in session: credentials have already been checked.
+            raise exceptions.NoTicketError('No ticket in session.')
+        else:
             try:
-                self.ticket = Ticket.objects.get(uuid=invitation_uuid,
-                                                 place=self.place,
-                                                 purpose=self.purpose)
+                return Ticket.objects.get(uuid=invitation_uuid,
+                                          place=self.place,
+                                          purpose=self.purpose)
             except Ticket.DoesNotExist:
                 raise exceptions.CredentialsError(
                     'Ticket {uuid} in session no longer exists in database.'
                     .format(uuid=invitation_uuid))
+
+    def get_ticket_from_credentials(self, request):
+        """Return ticket instance from credentials in ``request.get``."""
+        if request.GET:
+            form = TicketAuthenticationForm(data=request.GET,
+                                            place=self.place,
+                                            purpose=self.purpose)
+            if form.is_valid():
+                # Support UUID with dashes. In DB, UUID has no dashes.
+                data = form.cleaned_data
+                if '-' in data['uuid']:
+                    data['uuid'] = data['uuid'].replace('-', '')
+                try:
+                    ticket = Ticket.objects.get(uuid=data['uuid'],
+                                                place=self.place,
+                                                purpose=self.purpose)
+                except Ticket.DoesNotExist:
+                    raise exceptions.CredentialsError(
+                        'No ticket with UUID="{uuid}" for place="{place}" '
+                        'and purpose="{purpose}" in database.'
+                        .format(
+                            uuid=data['uuid'],
+                            place=self.place,
+                            purpose=self.purpose))
+                # Check password.
+                if not ticket.authenticate(data['password']):
+                    raise exceptions.CredentialsError(
+                        'Wrong password for ticket with UUID="{uuid}"'
+                        .format(uuid=ticket.uuid))
+                return ticket
+            else:
+                raise exceptions.CredentialsError('Invalid credentials.')
+        else:
+            raise exceptions.NoTicketError('Missing ticket.')
+
+    def validate_ticket(self):
         # Check usage.
         if self.ticket.used:
             raise exceptions.TicketUsedError(
@@ -131,7 +150,6 @@ class invitation_required(Decorator):
                 'Ticket with UUID="{uuid}" expired at {date}'.format(
                     uuid=self.ticket.uuid,
                     date=self.ticket.expiry_datetime))
-        return self.ticket
 
     def unauthorized(self, request, *args, **kwargs):
         """Return response when credentials are missing (no invitation)."""
@@ -142,10 +160,14 @@ class invitation_required(Decorator):
         credentials)."""
         return forbidden_view(request)
 
-    def login(self, request, *args, **kwargs):
-        """Log the user in when ticket is valid."""
+    def redirect(self, request):
+        """Redirect to same URL once invitation has been stored in session."""
         # Cache the invitation instance in session.
         request.session['invitation'] = self.ticket.uuid
+        return HttpResponseRedirect(request.path)
+
+    def login(self, request, *args, **kwargs):
+        """Log the user in when ticket is valid."""
         return guest_login(request, self.ticket)
 
     def valid(self, request, *args, **kwargs):
