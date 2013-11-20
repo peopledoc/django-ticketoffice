@@ -81,7 +81,7 @@ class invitation_required(Decorator):
             invitation_uuid = request.session['invitation']
         except KeyError:  # No ticket in session, check credentials.
             if request.GET:
-                form = TicketAuthenticationForm(request.GET,
+                form = TicketAuthenticationForm(data=request.GET,
                                                 place=self.place,
                                                 purpose=self.purpose)
                 if form.is_valid():
