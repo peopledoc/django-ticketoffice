@@ -2,9 +2,9 @@
 """View decorators."""
 from functools import wraps
 
-from django.http import HttpResponseRedirect
 from django.utils.decorators import available_attrs
 
+from django_ticketoffice import exceptions
 from django_ticketoffice.forms import TicketAuthenticationForm
 from django_ticketoffice.models import Ticket, GuestUser
 from django_ticketoffice.utils import (UnauthorizedView, ForbiddenView,
@@ -66,35 +66,72 @@ class invitation_required(Decorator):
 
     def run(self, request, *args, **kwargs):
         try:
+            self.get_ticket(request)
+        except exceptions.NoTicketError:
+            return self.unauthorized(request)
+        except (exceptions.CredentialsError,
+                exceptions.TicketUsedError,
+                exceptions.TicketExpiredError):
+            return self.forbidden(request)
+        return self.valid(request, *args, **kwargs)
+
+    def get_ticket(self, request):
+        """Return ticket instance for ``request``."""
+        try:
             invitation_uuid = request.session['invitation']
-        except KeyError:  # No invitation in session, check credentials.
+        except KeyError:  # No ticket in session, check credentials.
             if request.GET:
-                data = request.GET.dict()
-                if '-' in data['uuid']:
-                    # Support UUID with dashes.
-                    # In DB, UUID has no dashes.
-                    data['uuid'] = data['uuid'].replace('-', '')
-                form = TicketAuthenticationForm(data=data,
+                form = TicketAuthenticationForm(request.GET,
                                                 place=self.place,
                                                 purpose=self.purpose)
                 if form.is_valid():
-                    invitation = form.instance
-                    # Start guest session.
-                    request.session['invitation'] = invitation.uuid
-                    return HttpResponseRedirect(request.path)
+                    # Support UUID with dashes. In DB, UUID has no dashes.
+                    data = form.cleaned_data
+                    if '-' in data['uuid']:
+                        data['uuid'] = data['uuid'].replace('-', '')
+                    try:
+                        self.ticket = Ticket.objects.get(uuid=data['uuid'],
+                                                         place=self.place,
+                                                         purpose=self.purpose)
+                    except Ticket.DoesNotExist:
+                        raise exceptions.CredentialsError(
+                            'No ticket with UUID="{uuid}" for place="{place}" '
+                            'and purpose="{purpose}" in database.'
+                            .format(
+                                uuid=data['uuid'],
+                                place=self.place,
+                                purpose=self.purpose))
+                    # Check password.
+                    if not self.ticket.authenticate(data['password']):
+                        raise exceptions.CredentialsError(
+                            'Wrong password for ticket with UUID="{uuid}"'
+                            .format(uuid=self.ticket.uuid))
                 else:
-                    return self.forbidden(request)
+                    raise exceptions.CredentialsError('Invalid credentials.')
             else:
-                return self.unauthorized(request)
-        try:
-            self.ticket = Ticket.objects.get(uuid=invitation_uuid,
-                                             place=self.place,
-                                             purpose=self.purpose)
-        except Ticket.DoesNotExist:
-            return self.forbidden(request)
-        if not self.ticket.is_valid():
-            return self.forbidden(request)
-        return self.valid(request, *args, **kwargs)
+                raise exceptions.NoTicketError('Missing ticket.')
+        else:  # Ticket in session: credentials have already been checked.
+            try:
+                self.ticket = Ticket.objects.get(uuid=invitation_uuid,
+                                                 place=self.place,
+                                                 purpose=self.purpose)
+            except Ticket.DoesNotExist:
+                raise exceptions.CredentialsError(
+                    'Ticket {uuid} in session no longer exists in database.'
+                    .format(uuid=invitation_uuid))
+        # Check usage.
+        if self.ticket.used:
+            raise exceptions.TicketUsedError(
+                'Ticket with UUID="{uuid}" was used at {date}'.format(
+                    uuid=self.ticket.uuid,
+                    date=self.ticket.usage_datetime))
+        # Check expiry.
+        if self.ticket.expired:
+            raise exceptions.TicketExpiredError(
+                'Ticket with UUID="{uuid}" expired at {date}'.format(
+                    uuid=self.ticket.uuid,
+                    date=self.ticket.expiry_datetime))
+        return self.ticket
 
     def unauthorized(self, request, *args, **kwargs):
         """Return response when credentials are missing (no invitation)."""
@@ -107,6 +144,8 @@ class invitation_required(Decorator):
 
     def login(self, request, *args, **kwargs):
         """Log the user in when ticket is valid."""
+        # Cache the invitation instance in session.
+        request.session['invitation'] = self.ticket.uuid
         return guest_login(request, self.ticket)
 
     def valid(self, request, *args, **kwargs):
