@@ -138,60 +138,20 @@ class TicketAuthenticationFormTestCase(unittest.TestCase):
     """Test suite around
     :py:class:`django_ticketoffice.forms.TicketAuthenticationForm`."""
     def test_clean_success(self):
-        """clean() pass if credentials match Ticket."""
-        manager_mock = mock.Mock()
-        manager_mock.authenticate = mock.Mock(return_value=u'foo')
-        ticket_mock = mock.Mock()
-        ticket_mock.objects = manager_mock
-        with mock.patch('django_ticketoffice.forms.Ticket',
-                        new=ticket_mock):
-            form = forms.TicketAuthenticationForm(data={'uuid': u'foo',
-                                                        'password': u'bar'})
-            self.assertTrue(form.is_valid())
+        """TicketAuthenticationForm is valid if credentials syntax is ok."""
+        data = {'uuid': u'foo', 'password': u'bar'}
+        form = forms.TicketAuthenticationForm(data=data)
+        self.assertTrue(form.is_valid())
 
-    def test_credentials_error(self):
-        """clean() fail if Ticket manager raises CredentialsError."""
-        manager_mock = mock.Mock()
-        manager_mock.authenticate = mock.Mock(
-            side_effect=exceptions.CredentialsError())
-        ticket_mock = mock.Mock()
-        ticket_mock.objects = manager_mock
-        with mock.patch('django_ticketoffice.forms.Ticket',
-                        new=ticket_mock):
-            form = forms.TicketAuthenticationForm(data={'uuid': u'foo',
-                                                        'password': u'bar'})
-            self.assertFalse(form.is_valid())
-
-    def test_used_error(self):
-        """clean() fail if Ticket manager raises TicketUsedError."""
-        manager_mock = mock.Mock()
-        manager_mock.authenticate = mock.Mock(
-            side_effect=exceptions.TicketUsedError())
-        ticket_mock = mock.Mock()
-        ticket_mock.objects = manager_mock
-        with mock.patch('django_ticketoffice.forms.Ticket',
-                        new=ticket_mock):
-            form = forms.TicketAuthenticationForm(data={'uuid': u'foo',
-                                                        'password': u'bar'})
-            self.assertFalse(form.is_valid())
-
-    def test_expired_error(self):
-        """clean() fail if Ticket manager raises TicketExpiredError."""
-        manager_mock = mock.Mock()
-        manager_mock.authenticate = mock.Mock(
-            side_effect=exceptions.TicketExpiredError())
-        ticket_mock = mock.Mock()
-        ticket_mock.objects = manager_mock
-        with mock.patch('django_ticketoffice.forms.Ticket',
-                        new=ticket_mock):
-            form = forms.TicketAuthenticationForm(data={'uuid': u'foo',
-                                                        'password': u'bar'})
-            self.assertFalse(form.is_valid())
+    def test_missing_credentials(self):
+        """TicketAuthenticationForm requires both uuid and password."""
+        form = forms.TicketAuthenticationForm()
+        self.assertTrue(form.fields['uuid'].required)
+        self.assertTrue(form.fields['password'].required)
 
 
 class InvitationRequiredTestCase(unittest.TestCase):
-    """Tests around
-    :py:func:`django_ticketoffice.decorators.invitation_required`."""
+    "Tests around :class:`django_ticketoffice.decorators.invitation_required`."
     def setUp(self):
         """Common setup: fake request, stub views, stub user test function."""
         super(InvitationRequiredTestCase, self).setUp()
@@ -212,14 +172,12 @@ class InvitationRequiredTestCase(unittest.TestCase):
 
     def run_decorated_view(self, place=u'', purpose=u''):
         """Setup, decorate and call view, then return response."""
-        # Custom setup.
-
         # Get decorator.
         decorator = decorators.invitation_required(
             place=place,
-            purpose=purpose,
-            unauthorized=self.unauthorized_view,
-            forbidden=self.forbidden_view)
+            purpose=purpose)
+        decorator.unauthorized = self.unauthorized_view
+        decorator.forbidden = self.forbidden_view
         # Decorate view.
         decorated_view = decorator(self.authorized_view)
         # Return response.
@@ -229,10 +187,7 @@ class InvitationRequiredTestCase(unittest.TestCase):
 
     def test_valid_invitation_in_session(self):
         "invitation_required() with valid guest session runs decorated view."
-        # Setup:
-        #
-        # * fake invitation uuid in session
-        # * Ticket.objects.get() returns valid ticket.
+        # Setup.
         place = u'louvre'
         purpose = u'visit'
         fake_uuid = uuid.uuid4()
@@ -241,14 +196,17 @@ class InvitationRequiredTestCase(unittest.TestCase):
         self.assertTrue(invitation.is_valid())
         self.request.session = {'invitation': invitation}
         self.request.cache = {}
-        manager_mock = mock.Mock()
-        manager_mock.get = mock.Mock(return_value=invitation)
-        ticket_mock = mock.Mock()
-        ticket_mock.objects = manager_mock
-        with mock.patch('django_ticketoffice.decorators.Ticket',
-                        new=ticket_mock):
-            # Run.
-            response = self.run_decorated_view(place=place, purpose=purpose)
+        decorator = decorators.invitation_required(
+            place=place,
+            purpose=purpose)
+        decorator.get_ticket_from_credentials = mock.Mock(
+            side_effect=exceptions.NoTicketError)
+        decorator.get_ticket_from_session = mock.Mock(
+            return_value=invitation)
+        # Run.
+        response = decorator(self.authorized_view)(self.request,
+                                                   *self.request_args,
+                                                   **self.request_kwargs)
         # Check.
         self.authorized_view.assert_called_once_with(self.request,
                                                      *self.request_args,
@@ -266,26 +224,28 @@ class InvitationRequiredTestCase(unittest.TestCase):
         # * Ticket.objects.get() returns expired ticket.
         place = u'louvre'
         purpose = u'visit'
+        fake_uuid = uuid.uuid4()
         invitation = models.Ticket(place=place, purpose=purpose,
+                                   uuid=fake_uuid,
                                    expiry_datetime=now() - timedelta(days=2))
         self.assertFalse(invitation.is_valid())
-        fake_uuid = 'uuid'
-        self.request.session = {'invitation': fake_uuid}
-        manager_mock = mock.Mock()
-        manager_mock.get = mock.Mock(return_value=invitation)
-        ticket_mock = mock.Mock()
-        ticket_mock.objects = manager_mock
-        with mock.patch('django_ticketoffice.decorators.Ticket',
-                        new=ticket_mock):
-            # Run.
-            response = self.run_decorated_view(place=place, purpose=purpose)
+        decorator = decorators.invitation_required(
+            place=place,
+            purpose=purpose)
+        decorator.get_ticket_from_credentials = mock.Mock(
+            side_effect=exceptions.NoTicketError)
+        decorator.get_ticket_from_session = mock.Mock(
+            return_value=invitation)
+        decorator.forbidden = mock.Mock(return_value=mock.sentinel.forbidden)
+        request = mock.MagicMock()
+        request.session = {}
+        # Run.
+        response = decorator(self.authorized_view)(request)
         # Check.
-        self.forbidden_view.assert_called_once_with(self.request)
-        manager_mock.get.assert_called_once_with(uuid=fake_uuid,
-                                                 place=place, purpose=purpose)
-        self.assertEqual(response, self.forbidden_view.return_value)
-        self.assertFalse(self.authorized_view.called)
-        self.assertFalse(self.unauthorized_view.called)
+        self.assertEqual(response, mock.sentinel.forbidden)
+        decorator.get_ticket_from_credentials.assert_called_once_with(request)
+        decorator.get_ticket_from_session.assert_called_once_with(request)
+        decorator.forbidden.assert_called_once_with(request)
 
     def test_wrong_place_purpose_invitation_in_session(self):
         "invitation_required() with inappropriate guest session returns 403."
@@ -316,22 +276,32 @@ class InvitationRequiredTestCase(unittest.TestCase):
         place = u'louvre'
         purpose = u'visit'
         fake_uuid = uuid.uuid4()
+        password = u'secret'
         invitation = models.Ticket(place=place, purpose=purpose)
         invitation.uuid = fake_uuid
+        invitation.set_password(password)
         self.assertTrue(invitation.is_valid())
         self.request.session = {}
         self.request.GET = mock.MagicMock()
         form_mock = mock.Mock()
         form_mock.is_valid.return_value = True
-        form_mock.instance = invitation
+        form_mock.cleaned_data = {'uuid': str(fake_uuid), 'password': password}
         form_class_mock = mock.Mock(return_value=form_mock)
-        with mock.patch('django_ticketoffice.decorators'
-                        '.TicketAuthenticationForm', new=form_class_mock):
-            # Run.
-            response = self.run_decorated_view(place=place, purpose=purpose)
+        manager_mock = mock.Mock()
+        manager_mock.get = mock.Mock(return_value=invitation)
+        ticket_mock = mock.Mock()
+        ticket_mock.objects = manager_mock
+        with mock.patch('django_ticketoffice.decorators.Ticket',
+                        new=ticket_mock):
+            with mock.patch('django_ticketoffice.decorators'
+                            '.TicketAuthenticationForm', new=form_class_mock):
+                # Run.
+                response = self.run_decorated_view(place=place,
+                                                   purpose=purpose)
         # Check.
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(self.request.session, {'invitation': invitation.uuid})
+        self.assertEqual(self.request.session,
+                         {'invitation': invitation.uuid})
         self.assertFalse(self.authorized_view.called)
         self.assertFalse(self.unauthorized_view.called)
         self.assertFalse(self.forbidden_view.called)
@@ -367,6 +337,41 @@ class InvitationRequiredTestCase(unittest.TestCase):
         self.assertEqual(response, self.unauthorized_view.return_value)
         self.assertFalse(self.authorized_view.called)
         self.assertFalse(self.forbidden_view.called)
+
+    def test_run_credentials_error(self):
+        """invitation_required.run() calls forbidden() if CredentialsError."""
+        decorator = decorators.invitation_required(place=u'', purpose=u'')
+        decorator.get_ticket = mock.Mock(
+            side_effect=exceptions.CredentialsError)
+        decorator.forbidden = mock.Mock()
+        decorator.run('fake request')
+        decorator.forbidden.assert_called_once_with('fake request')
+
+    def test_run_no_ticket_error(self):
+        """invitation_required.run() calls unauthorized() if NoTicketError."""
+        decorator = decorators.invitation_required(place=u'', purpose=u'')
+        decorator.get_ticket = mock.Mock(side_effect=exceptions.NoTicketError)
+        decorator.unauthorized = mock.Mock()
+        decorator.run('fake request')
+        decorator.unauthorized.assert_called_once_with('fake request')
+
+    def test_run_ticket_used_error(self):
+        "invitation_required.run() calls forbidden() if TicketUsedError."
+        decorator = decorators.invitation_required(place=u'', purpose=u'')
+        decorator.get_ticket = mock.Mock(
+            side_effect=exceptions.TicketUsedError)
+        decorator.forbidden = mock.Mock()
+        decorator.run('fake request')
+        decorator.forbidden.assert_called_once_with('fake request')
+
+    def test_run_ticket_expired_error(self):
+        "invitation_required.run() calls forbidden() if TicketExpiredError."
+        decorator = decorators.invitation_required(place=u'', purpose=u'')
+        decorator.get_ticket = mock.Mock(
+            side_effect=exceptions.TicketExpiredError)
+        decorator.forbidden = mock.Mock()
+        decorator.run('fake request')
+        decorator.forbidden.assert_called_once_with('fake request')
 
 
 def SettingsTestCase(self):

@@ -13,6 +13,10 @@ class CredentialsMixin(QMixin):
             raise exceptions.CredentialsError(
                 'No ticket with UUID "{uuid}" for place "{place}" and purpose '
                 '"{purpose}"'.format(uuid=uuid, place=place, purpose=purpose))
+        # Check password.
+        if not ticket.authenticate(clear_password):
+            raise exceptions.CredentialsError(
+                'Wrong password for UUID {uuid}'.format(uuid=ticket.uuid))
         # Check usage.
         if ticket.used:
             raise exceptions.TicketUsedError(
@@ -25,10 +29,6 @@ class CredentialsMixin(QMixin):
                 'Ticket with UUID {uuid} expired at {date}'.format(
                     uuid=ticket.uuid,
                     date=ticket.expiry_datetime))
-        # Check password.
-        if not ticket.authenticate(clear_password):
-            raise exceptions.CredentialsError(
-                'Wrong password for UUID {uuid}'.format(uuid=ticket.uuid))
         # Alright, return ticket.
         return ticket
 
