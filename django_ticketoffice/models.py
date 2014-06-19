@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """Models."""
+from functools import partial
+
 from django.db import models
 from django.utils.timezone import now
 from django.contrib.auth import hashers
@@ -20,7 +22,7 @@ class Ticket(models.Model):
 
     #: Encrypted password for the ticket.
     password = models.CharField(max_length=255,
-                                default=hashers.UNUSABLE_PASSWORD)
+                                default=partial(hashers.make_password, None))
 
     #: Location where the ticket is to be used.
     place = models.CharField(max_length=50, blank=True, db_index=True)
