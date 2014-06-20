@@ -23,18 +23,6 @@ from django_ticketoffice import utils
 from django_ticketoffice.settings import TICKETOFFICE_PASSWORD_GENERATOR
 
 
-class APITestCase(unittest.TestCase):
-    """Test suite around :py:module:`django_ticketoffice` API.
-
-    This test suite mostly guarantees backward compatibility (i.e. make use the
-    API does not change unless explicitely desired).
-
-    """
-    def test_ticket(self):
-        """Import Ticket from django_ticketoffice."""
-        from django_ticketoffice import Ticket  # NoQA
-
-
 def is_valid_password(password):
     if django.VERSION[0] == 1 and django.VERSION[1] == 5:
         return password == hashers.UNUSABLE_PASSWORD
