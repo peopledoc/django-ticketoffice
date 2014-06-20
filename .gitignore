@@ -1,23 +1,10 @@
-# Local binaries.
-/bin/
-
-# Libraries.
-/lib/
-
-# Data files.
-/var/
-
 # Python files.
 *.pyc
 *.pyo
 *.egg-info
 
+# Tox files.
+/.tox/
+
 # Compiled gettext catalogs.
 *.mo
-
-# Editors' temporary buffers.
-.*.swp
-*~
-
-# Buildout files.
-.mr.developer.cfg
