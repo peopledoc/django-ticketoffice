@@ -23,6 +23,19 @@ from django_ticketoffice import utils
 from django_ticketoffice.settings import TICKETOFFICE_PASSWORD_GENERATOR
 
 
+def is_valid_password(password):
+    if django.VERSION[0] == 1 and django.VERSION[1] == 5:
+        return password == hashers.UNUSABLE_PASSWORD
+
+    elif django.VERSION[0] == 1 and django.VERSION[1] == 6:
+        return password[0] == hashers.UNUSABLE_PASSWORD_PREFIX\
+            and len(password[1:]) == hashers.UNUSABLE_PASSWORD_SUFFIX_LENGTH
+
+    else:
+        raise Exception(
+            'Django not supported: {0}.{1}.{2}'.format(django.VERSION))
+
+
 class TicketModelTestCase(django.test.TestCase):
     """Test suite around `django_ticketoffice.models.Ticket`."""
     def test_manager(self):
@@ -35,12 +48,12 @@ class TicketModelTestCase(django.test.TestCase):
     def test_generate_password(self):
         """Ticket.generate_password return random (clear) password."""
         ticket = models.Ticket()
-        self.assertEqual(ticket.password, hashers.UNUSABLE_PASSWORD)
+        self.assertTrue(is_valid_password(ticket.password))
         generate_password_mock = mock.Mock(return_value=mock.sentinel.password)
         with mock.patch('django_ticketoffice.utils.random_password',
                         new=generate_password_mock):
             password = ticket.generate_password()
-        self.assertNotEqual(ticket.password, hashers.UNUSABLE_PASSWORD)
+        self.assertNotEqual(ticket.password, mock.sentinel.password)
         generate_password_mock.assert_called_once_with(
             *TICKETOFFICE_PASSWORD_GENERATOR[1],
             **TICKETOFFICE_PASSWORD_GENERATOR[2])
@@ -53,7 +66,7 @@ class TicketManagerTestCase(django.test.TestCase):
         """Ticket instance is created with expected defaults."""
         ticket = models.Ticket.objects.create()
         self.assertNotEqual(ticket.uuid, u'')
-        self.assertEqual(ticket.password, hashers.UNUSABLE_PASSWORD)
+        self.assertTrue(is_valid_password(ticket.password))
         self.assertEqual(ticket.usage_datetime, None)
         self.assertEqual(ticket.expiry_datetime, None)
         self.assertEqual(ticket.place, u'')
