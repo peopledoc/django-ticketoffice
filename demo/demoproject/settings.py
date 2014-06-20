@@ -51,9 +51,15 @@ INSTALLED_APPS = list(INSTALLED_APPS) + [
 ]
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 nose_cfg_dir = os.path.join(cfg_dir, 'nose')
-NOSE_ARGS = ['--config={etc}/base.cfg'.format(etc=nose_cfg_dir),
-             '--config={etc}/{package}.cfg'.format(etc=nose_cfg_dir,
-                                                   package=__package__)]
+NOSE_ARGS = [
+    '--verbosity=2',
+    '--nocapture',
+    '--rednose',
+    '--no-path-adjustment',
+    '--all-modules',
+    '--cover-inclusive',
+    '--cover-tests',
+]
 
 # Disable password hashing for better performances.
 # Enable this feature on demand with @django.test.override_settings() or

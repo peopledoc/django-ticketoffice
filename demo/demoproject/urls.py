@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """URL configuration."""
-from django.conf.urls import include, patterns, url
+from django.conf.urls import patterns
 
 
 urlpatterns = patterns(
