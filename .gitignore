@@ -3,6 +3,11 @@
 *.pyo
 *.egg-info
 
+# buildout reps
+bin/
+lib/
+var/
+
 # Tox files.
 /.tox/
 
