@@ -302,7 +302,7 @@ class InvitationRequiredTestCase(unittest.TestCase):
         # Check.
         self.assertEqual(response.status_code, 302)
         self.assertEqual(self.request.session,
-                         {'invitation': invitation.uuid})
+                         {'invitation': str(invitation.uuid)})
         self.assertFalse(self.authorized_view.called)
         self.assertFalse(self.unauthorized_view.called)
         self.assertFalse(self.forbidden_view.called)

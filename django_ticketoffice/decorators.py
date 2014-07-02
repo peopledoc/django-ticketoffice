@@ -163,7 +163,7 @@ class invitation_required(Decorator):
     def redirect(self, request):
         """Redirect to same URL once invitation has been stored in session."""
         # Cache the invitation instance in session.
-        request.session['invitation'] = self.ticket.uuid
+        request.session['invitation'] = str(self.ticket.uuid)
         return HttpResponseRedirect(request.path)
 
     def login(self, request, *args, **kwargs):
