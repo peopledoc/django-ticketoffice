@@ -186,6 +186,54 @@ class InvitationRequiredTestCase(unittest.TestCase):
                               *self.request_args,
                               **self.request_kwargs)
 
+    def test_get_invitation_from_session(self):
+        """invitation_required() reads invitation from session."""
+        place = u'louvre'
+        purpose = u'visit'
+        invitation = models.Ticket(place=place, purpose=purpose)
+        fake_uuid = uuid.uuid4()
+        invitation.uuid = fake_uuid
+        decorator = decorators.invitation_required(
+            place=place,
+            purpose=purpose)
+        decorator.ticket = invitation
+        # Check result when session is empty.
+        self.request.session = {}
+        with self.assertRaises(exceptions.NoTicketError):
+            decorator.get_ticket_from_session(self.request)
+        # Check result when session holds invitation but DB does not.
+        self.request.session = {'invitation': str(fake_uuid)}
+        with self.assertRaises(exceptions.CredentialsError):
+            decorator.get_ticket_from_session(self.request)
+        # Check result when invitation is in both session and DB.
+        backup = models.Ticket.objects.get
+        try:
+            models.Ticket.objects.get = mock.Mock(return_value=invitation)
+            instance = decorator.get_ticket_from_session(self.request)
+            self.assertIs(instance, invitation)
+            models.Ticket.objects.get.assert_called_once_with(
+                uuid=str(fake_uuid),
+                place=place,
+                purpose=purpose,
+            )
+        finally:
+            models.Ticket.objects.get = backup
+
+    def test_redirect_session(self):
+        """invitation_required() stores invitation UUID in session."""
+        place = u'louvre'
+        purpose = u'visit'
+        invitation = models.Ticket(place=place, purpose=purpose)
+        fake_uuid = uuid.uuid4()
+        invitation.uuid = fake_uuid
+        decorator = decorators.invitation_required(
+            place=place,
+            purpose=purpose)
+        decorator.ticket = invitation
+        self.request.session = {}
+        decorator.redirect(self.request)
+        self.assertEqual(self.request.session['invitation'], str(fake_uuid))
+
     def test_valid_invitation_in_session(self):
         "invitation_required() with valid guest session runs decorated view."
         # Setup.
@@ -302,7 +350,7 @@ class InvitationRequiredTestCase(unittest.TestCase):
         # Check.
         self.assertEqual(response.status_code, 302)
         self.assertEqual(self.request.session,
-                         {'invitation': invitation.uuid})
+                         {'invitation': str(invitation.uuid)})
         self.assertFalse(self.authorized_view.called)
         self.assertFalse(self.unauthorized_view.called)
         self.assertFalse(self.forbidden_view.called)

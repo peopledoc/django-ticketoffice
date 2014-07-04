@@ -29,11 +29,11 @@ KEYWORDS = [
 ]
 PACKAGES = [NAME.replace('-', '_')]
 REQUIREMENTS = [
-    'Django<1.7',
+    'Django',
     'django-floppyforms',
     'django-jsonfield',
     'django-qmixin',
-    'django-uuidfield',
+    'django-uuidfield>=0.5',
     'setuptools',
 ]
 if IS_PYTHON2:
