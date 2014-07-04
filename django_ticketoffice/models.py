@@ -18,7 +18,7 @@ from django_ticketoffice.utils import import_member
 class Ticket(models.Model):
     """Tickets are generic one-shot credentials."""
     #: Unique identifier for the ticket.
-    uuid = UUIDField(auto=True)
+    uuid = UUIDField(auto=True, hyphenate=True)
 
     #: Encrypted password for the ticket.
     password = models.CharField(max_length=255,
