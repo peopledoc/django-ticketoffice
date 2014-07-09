@@ -9,7 +9,7 @@ PIP = pip
 TOX = tox
 
 
-.PHONY: all help develop clean distclean maintainer-clean test documentation sphinx readme demo runserver release
+.PHONY: all help develop clean distclean maintainer-clean test documentation sphinx readme release
 
 
 # Default target. Does nothing.
