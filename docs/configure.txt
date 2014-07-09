@@ -1,0 +1,36 @@
+#########
+Configure
+#########
+
+Once :doc:`django-ticketoffice has been installed <install>`, let's configure
+it.
+
+
+**************
+INSTALLED_APPS
+**************
+
+Add ``"django-ticketoffice"`` to ``INSTALLED_APPS`` in settings.
+
+
+*******************************
+TICKETOFFICE_PASSWORD_GENERATOR
+*******************************
+
+``TICKETOFFICE_PASSWORD_GENERATOR`` is a tuple in the form ``(path, args,
+kwargs)``, where:
+
+* ``path`` is the Python path to import a callable (the password generation
+  function)
+* ``args`` is the list of positional arguments for the callable.
+* ``kwargs`` is a dictionary of keyword arguments for the callable.
+
+Default is:
+
+.. code-block:: python
+
+   (
+       'django_ticketoffice.utils.random_password',
+       [],
+       {'min_length': 12, 'max_length': 20}
+   )    

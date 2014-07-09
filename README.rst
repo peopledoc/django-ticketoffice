@@ -3,9 +3,9 @@ django-ticketoffice
 ###################
 
 `django-ticketoffice` provides one-shot authentication utilities for Django.
-Typical usage is invitation tickets.
-
-.. warning:: This project is experimental.
+It lets you create and manage tickets that allow users to perform one action
+on the website. As an example, Django could use it for the "password reset"
+action, where users authenticate using a temporary token.
 
 
 *******
@@ -45,13 +45,40 @@ Create and deliver tickets for this resource:
    visit_url = reverse('louvre') + '?' + urlencode(credentials)
 
 `django-ticketoffice` focuses on authentication. It does not send invitation
-emails.
+emails. You may check `django-mail-factory`_ about sending emails.
+
+
+**************
+Project status
+**************
+
+`django-ticketoffice` is, at the moment, a proof-of-concept: it delivers basic
+features in order to create tickets and to use them in views. It works (you
+can use it), but it may lack some features (ideas are welcome), and it may
+change (improve) quite a bit. That said, maintainers will take care of release
+notes and migrations.
+
+See also `vision`_, `roadmap`_ and `alternatives`_ to get a better overview of
+project status.
 
 
 *********
 Resources
 *********
 
+* Documentation: https://django-ticketoffice.readthedocs.org
+* PyPI page: http://pypi.python.org/pypi/django-ticketoffice
 * Code repository: https://github.com/novapost/django-ticketoffice
 * Bugtracker: https://github.com/novapost/django-ticketoffice/issues
 * Continuous integration: https://travis-ci.org/novapost/django-ticketoffice
+* Roadmap: https://github.com/benoitbryon/django-downloadview/issues/milestones
+
+
+.. _`django-mail-factory`:
+   https://pypi.python.org/pypi/django-mail-factory
+.. _`vision`:
+   https://django-ticketoffice.readthedocs.org/en/latest/about/vision.html
+.. _`roadmap`:
+   https://github.com/benoitbryon/django-downloadview/issues/milestones
+.. _`alternatives`:
+   https://django-ticketoffice.readthedocs.org/en/latest/about/alternatives.html

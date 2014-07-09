@@ -49,33 +49,27 @@ distclean: clean
 
 #: maintainer-clean - Remove almost everything that can be re-generated.
 maintainer-clean: distclean
-	rm -rf bin/
-	rm -rf lib/
 	rm -rf build/
 	rm -rf dist/
 	rm -rf .tox/
 
 
-#: test - Run full test suite.
+#: test - Run test suites.
 test:
 	$(TOX)
+
+
+#: documentation - Build documentation (Sphinx, README, ...)
+documentation: sphinx readme
+
+
+sphinx:
+	$(TOX) -e sphinx
 
 
 #: readme - Build standalone documentation files (README, CONTRIBUTING...).
 readme:
 	$(TOX) -e readme
-
-
-#: documentation - Build full documentation.
-documentation: readme
-
-
-demo: develop
-	demo syncdb --noinput
-
-
-runserver: demo
-	demo runserver
 
 
 #: release - Tag and push to PyPI.

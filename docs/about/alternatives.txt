@@ -1,0 +1,31 @@
+#################################
+Alternatives and related projects
+#################################
+
+This document presents other projects that provide similar or complementary
+functionalities. It focuses on differences or relationships with
+`django-ticketoffice`.
+
+
+********
+Kerberos
+********
+
+`Kerberos`_ may be a candidate to implement internal one-shot authentication.
+There are some projects around `Kerberos` and `Django`: see
+https://pypi.python.org/pypi?%3Aaction=search&term=django%20kerberos
+
+
+*****
+S/KEY
+*****
+
+`S/KEY`_ may be an option to generate and validate passwords.
+
+
+.. rubric:: References
+
+.. target-notes::
+
+.. _`Kerberos`: https://en.wikipedia.org/wiki/Kerberos_%28protocol%29
+.. _`S/KEY`: https://en.wikipedia.org/wiki/S/Key

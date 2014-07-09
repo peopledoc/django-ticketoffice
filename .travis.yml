@@ -1,9 +1,12 @@
 language: python
 env:
-  - TOXENV=py27
+  matrix:
+  - TOXENV=py27-dj15
+  - TOXENV=py27-dj16
   - TOXENV=flake8
+  - TOXENV=sphinx
   - TOXENV=readme
 install:
-  - pip install tox
+- make develop
 script:
-  - tox
+- make test

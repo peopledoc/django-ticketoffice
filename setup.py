@@ -39,21 +39,50 @@ REQUIREMENTS = [
 if IS_PYTHON2:
     REQUIREMENTS.append('mock')
 ENTRY_POINTS = {}
+SETUP_REQUIREMENTS = []
+TEST_REQUIREMENTS = []
+CMDCLASS = {}
 
 
-if __name__ == '__main__':  # Don't run setup() when we import this module.
-    setup(name=NAME,
-          version=VERSION,
-          description=DESCRIPTION,
-          long_description=README,
-          classifiers=CLASSIFIERS,
-          keywords=' '.join(KEYWORDS),
-          author=AUTHOR,
-          author_email=EMAIL,
-          url=URL,
-          license=LICENSE,
-          packages=PACKAGES,
-          include_package_data=True,
-          zip_safe=False,
-          install_requires=REQUIREMENTS,
-          entry_points=ENTRY_POINTS)
+# Tox integration.
+from setuptools.command.test import test as TestCommand
+
+
+class Tox(TestCommand):
+    """Test command that runs tox."""
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        import tox  # import here, cause outside the eggs aren't loaded.
+        errno = tox.cmdline(self.test_args)
+        sys.exit(errno)
+
+
+TEST_REQUIREMENTS.append('tox')
+CMDCLASS['test'] = Tox
+
+
+if __name__ == '__main__':  # Do not run setup() when we import this module.
+    setup(
+        name=NAME,
+        version=VERSION,
+        description=DESCRIPTION,
+        long_description=README,
+        classifiers=CLASSIFIERS,
+        keywords=' '.join(KEYWORDS),
+        author=AUTHOR,
+        author_email=EMAIL,
+        url=URL,
+        license=LICENSE,
+        packages=PACKAGES,
+        include_package_data=True,
+        zip_safe=False,
+        install_requires=REQUIREMENTS,
+        entry_points=ENTRY_POINTS,
+        tests_require=TEST_REQUIREMENTS,
+        cmdclass=CMDCLASS,
+        setup_requires=SETUP_REQUIREMENTS,
+    )

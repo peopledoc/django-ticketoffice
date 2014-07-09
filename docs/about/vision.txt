@@ -1,0 +1,45 @@
+######
+Vision
+######
+
+`django-ticketoffice` helps developers to implement features using the
+"one-shot authentication" (or "temporary credentials") pattern.
+
+As an example `Django` uses temporary credentials for its "password reset"
+feature:
+
+* a token is randomly generated
+* the user receives it by mail
+* the user shows the token to set a new password
+* once the action (password reset) has been done, the authorization token is
+  deactivated
+* the invitation has a limited lifetime.
+
+Developers often face similar situations, where they need to grant users some
+permissions for a limited scope and limited time.
+
+As an example, there are many websites sending a code to user's phone number.
+Then the user has to confirm some secured operation with that code.
+
+`django-ticketoffice` provides tools for developers to implement such features.
+It provides tickets and authentication features.
+
+`django-ticketoffice` is meant to be flexible, so that it can fit many
+situations. It does focus on authentication.
+
+At core, `django-ticketoffice` is not an all-in-one solution implementing the
+full workflow. As an example it does not include email sending, at the moment.
+That said, it may provide some generic views that do so, as helpers, if some
+patterns emerge.
+
+`django-ticketoffice` primary purpose is to provide a smart API to `Django`
+developers. It means that high-level API (`Django`-side) should be stable ;
+whereas internal implementation of the "temporary credentials" pattern may
+change, or be configurable. As an example, tickets could be managed in
+`Django`'s main database, or in some external service (REST API? Kerberos?).
+
+Since `django-ticketoffice` is built on top of `Django`, it may provide a web
+API to manage tickets. It means it could itself be used as "external one-shot
+authentication service", i.e. it could be used either temporary credentials
+client or server. That said, priority is the client feature, the server feature
+would be a bonus.
