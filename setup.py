@@ -13,7 +13,8 @@ IS_PYTHON2 = sys.version_info[0] == 2
 
 
 NAME = 'django-ticketoffice'
-DESCRIPTION = 'One-shot authentication (invitation) utilities for Django.'
+DESCRIPTION = 'One-shot authentication (temporary credentials) utilities ' \
+              'for Django.'
 README = open(os.path.join(here, 'README.rst')).read()
 VERSION = open(os.path.join(here, 'VERSION')).read().strip()
 AUTHOR = u'Benoît Bryon'

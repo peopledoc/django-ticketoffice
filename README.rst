@@ -2,7 +2,8 @@
 django-ticketoffice
 ###################
 
-`django-ticketoffice` provides one-shot authentication utilities for Django.
+`django-ticketoffice` provides one-shot authentication (a.k.a. temporary
+credentials) utilities for Django.
 It lets you create and manage tickets that allow users to perform one action
 on the website. As an example, Django could use it for the "password reset"
 action, where users authenticate using a temporary token.
@@ -71,7 +72,7 @@ Resources
 * Code repository: https://github.com/novapost/django-ticketoffice
 * Bugtracker: https://github.com/novapost/django-ticketoffice/issues
 * Continuous integration: https://travis-ci.org/novapost/django-ticketoffice
-* Roadmap: https://github.com/benoitbryon/django-downloadview/issues/milestones
+* Roadmap: https://github.com/novapost/django-ticketoffice/issues/milestones
 
 
 .. _`django-mail-factory`:
@@ -79,6 +80,6 @@ Resources
 .. _`vision`:
    https://django-ticketoffice.readthedocs.org/en/latest/about/vision.html
 .. _`roadmap`:
-   https://github.com/benoitbryon/django-downloadview/issues/milestones
+   https://github.com/novapost/django-ticketoffice/issues/milestones
 .. _`alternatives`:
    https://django-ticketoffice.readthedocs.org/en/latest/about/alternatives.html
