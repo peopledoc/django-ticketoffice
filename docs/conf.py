@@ -49,7 +49,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'django-ticketoffice'
-project_slug = re.sub(r'([\w_.-]+)', u'-', project)
+project_slug = re.sub(r'([\W_.-]+)', u'-', project)
 copyright = u'2014 - Benoît Bryon'
 author = u'Benoît Bryon'
 author_slug = re.sub(r'([\w_.-]+)', u'-', author)
