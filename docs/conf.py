@@ -52,7 +52,7 @@ project = u'django-ticketoffice'
 project_slug = re.sub(r'([\W_.-]+)', u'-', project)
 copyright = u'2014 - Benoît Bryon'
 author = u'Benoît Bryon'
-author_slug = re.sub(r'([\w_.-]+)', u'-', author)
+author_slug = re.sub(r'([\W_.-]+)', u'-', author)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
