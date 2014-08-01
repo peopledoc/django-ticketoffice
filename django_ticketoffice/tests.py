@@ -212,7 +212,7 @@ class InvitationRequiredTestCase(unittest.TestCase):
             instance = decorator.get_ticket_from_session(self.request)
             self.assertIs(instance, invitation)
             models.Ticket.objects.get.assert_called_once_with(
-                uuid=str(fake_uuid),
+                uuid=fake_uuid,
                 place=place,
                 purpose=purpose,
             )
@@ -302,7 +302,8 @@ class InvitationRequiredTestCase(unittest.TestCase):
         #
         # * fake invitation in session
         # * Ticket.objects.get() raises DoesNotExist.
-        self.request.session = {'invitation': 'fake uuid'}
+        fake_uuid = uuid.uuid4()
+        self.request.session = {'invitation': str(fake_uuid)}
         manager_mock = mock.Mock()
         manager_mock.get = mock.Mock(
             side_effect=models.Ticket.DoesNotExist)
