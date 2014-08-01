@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """View decorators."""
-from uuid import UUID
 from functools import wraps
+from uuid import UUID
 
 from django.http import HttpResponseRedirect
 from django.utils.decorators import available_attrs
@@ -113,17 +113,10 @@ class invitation_required(Decorator):
                                             place=self.place,
                                             purpose=self.purpose)
             if form.is_valid():
-                # Support UUID with dashes. In DB, UUID has no dashes.
                 data = form.cleaned_data
-                # uuid check
-                try:
-                    uuid = UUID(data['uuid'])
-                except ValueError:
-                    raise exceptions.CredentialsError(
-                        'Invalid UUID value "{0}".'.format(data['uuid']))
                 # ticket check
                 try:
-                    ticket = Ticket.objects.get(uuid=uuid,
+                    ticket = Ticket.objects.get(uuid=data['uuid'],
                                                 place=self.place,
                                                 purpose=self.purpose)
                 except Ticket.DoesNotExist:
@@ -131,7 +124,7 @@ class invitation_required(Decorator):
                         'No ticket with UUID="{uuid}" for place="{place}" '
                         'and purpose="{purpose}" in database.'
                         .format(
-                            uuid=uuid,
+                            uuid=['uuid'],
                             place=self.place,
                             purpose=self.purpose))
                 # Check password.

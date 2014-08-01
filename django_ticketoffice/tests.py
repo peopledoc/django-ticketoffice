@@ -140,7 +140,24 @@ class TicketAuthenticationFormTestCase(unittest.TestCase):
     :py:class:`django_ticketoffice.forms.TicketAuthenticationForm`."""
     def test_clean_success(self):
         """TicketAuthenticationForm is valid if credentials syntax is ok."""
-        data = {'uuid': u'foo', 'password': u'bar'}
+        data = {'uuid': unicode(uuid.uuid4()), 'password': u'bar'}
+        form = forms.TicketAuthenticationForm(data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_clean_bad_uuid(self):
+        """TicketAuthenticationForm is invalid if uuid has wrong format."""
+        # Invalid.
+        data = {'uuid': 'foo', 'password': u'bar'}
+        form = forms.TicketAuthenticationForm(data=data)
+        self.assertFalse(form.is_valid())
+        # Valid with dashes.
+        data = {'uuid': '12345678-1234-5678-1234-567812345678',
+                'password': u'bar'}
+        form = forms.TicketAuthenticationForm(data=data)
+        self.assertTrue(form.is_valid())
+        # Valid without dashes.
+        data = {'uuid': '12345678123456781234567812345678',
+                'password': u'bar'}
         form = forms.TicketAuthenticationForm(data=data)
         self.assertTrue(form.is_valid())
 
@@ -201,7 +218,7 @@ class InvitationRequiredTestCase(unittest.TestCase):
         self.request.session = {}
         with self.assertRaises(exceptions.NoTicketError):
             decorator.get_ticket_from_session(self.request)
-        # invlida uuig shoud trigger exception
+        # Invalid uuid triggers exception
         self.request.session = {'invitation': 'notavaliduuid'}
         with self.assertRaises(exceptions.NoTicketError):
             decorator.get_ticket_from_session(self.request)
