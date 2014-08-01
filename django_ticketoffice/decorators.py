@@ -92,6 +92,8 @@ class invitation_required(Decorator):
         """Return ticket instance from ``request``'s session."""
         try:
             invitation_uuid = UUID(request.session['invitation'])
+        except ValueError:
+            raise exceptions.NoTicketError('Invalid ticket in session.')
         except KeyError:  # No ticket in session, check credentials.
             raise exceptions.NoTicketError('No ticket in session.')
         else:
