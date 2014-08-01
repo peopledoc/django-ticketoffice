@@ -201,6 +201,10 @@ class InvitationRequiredTestCase(unittest.TestCase):
         self.request.session = {}
         with self.assertRaises(exceptions.NoTicketError):
             decorator.get_ticket_from_session(self.request)
+        # invlida uuig shoud trigger exception
+        self.request.session = {'invitation': 'notavaliduuid'}
+        with self.assertRaises(exceptions.NoTicketError):
+            decorator.get_ticket_from_session(self.request)
         # Check result when session holds invitation but DB does not.
         self.request.session = {'invitation': str(fake_uuid)}
         with self.assertRaises(exceptions.CredentialsError):
