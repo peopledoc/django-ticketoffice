@@ -124,7 +124,7 @@ class invitation_required(Decorator):
                         'No ticket with UUID="{uuid}" for place="{place}" '
                         'and purpose="{purpose}" in database.'
                         .format(
-                            uuid=['uuid'],
+                            uuid=data['uuid'],
                             place=self.place,
                             purpose=self.purpose))
                 # Check password.
