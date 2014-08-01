@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """View decorators."""
 from functools import wraps
+from uuid import UUID
 
 from django.http import HttpResponseRedirect
 from django.utils.decorators import available_attrs
@@ -90,7 +91,9 @@ class invitation_required(Decorator):
     def get_ticket_from_session(self, request):
         """Return ticket instance from ``request``'s session."""
         try:
-            invitation_uuid = request.session['invitation']
+            invitation_uuid = UUID(request.session['invitation'])
+        except ValueError:
+            raise exceptions.NoTicketError('Invalid ticket in session.')
         except KeyError:  # No ticket in session, check credentials.
             raise exceptions.NoTicketError('No ticket in session.')
         else:
@@ -110,10 +113,8 @@ class invitation_required(Decorator):
                                             place=self.place,
                                             purpose=self.purpose)
             if form.is_valid():
-                # Support UUID with dashes. In DB, UUID has no dashes.
                 data = form.cleaned_data
-                if '-' in data['uuid']:
-                    data['uuid'] = data['uuid'].replace('-', '')
+                # ticket check
                 try:
                     ticket = Ticket.objects.get(uuid=data['uuid'],
                                                 place=self.place,

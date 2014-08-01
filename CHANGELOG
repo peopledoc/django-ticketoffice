@@ -8,7 +8,11 @@ about future releases, check `milestones`_ and :doc:`/about/vision`.
 0.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+Small improvements around UUID format.
+ 
+- Feature #4 - In ``invitation_required`` decorator, UUID value submitted by
+  user is validated via ``TicketAuthenticationForm``. The value stored in
+  session also gets more consistent.
 
 
 0.1.1 (2014-07-10)

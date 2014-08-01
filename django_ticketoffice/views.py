@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """Views."""
+from uuid import UUID
+
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
@@ -18,10 +20,14 @@ class InvitationMixin(object):
                 self._invitation = self.request.cache['invitation']
             except AttributeError, KeyError:
                 try:
-                    ticket_uuid = self.request.session['invitation']
+                    ticket_uuid = UUID(self.request.session['invitation'])
                 except KeyError:
                     messages.add_message(self.request, messages.ERROR,
                                          _('Missing invitation credentials.'))
+                    raise PermissionDenied()
+                except ValueError:
+                    messages.add_message(self.request, messages.ERROR,
+                                         _('Invalid invitation credentials.'))
                     raise PermissionDenied()
                 try:
                     ticket = Ticket.objects.get(uuid=ticket_uuid)

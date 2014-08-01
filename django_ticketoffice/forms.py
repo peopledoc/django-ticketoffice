@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """Forms."""
+import uuid
+
 from django.utils.translation import ugettext_lazy as _
 
 import floppyforms as forms
@@ -21,3 +23,9 @@ class TicketAuthenticationForm(forms.Form):
         self.place = place
         self.purpose = purpose
         super(TicketAuthenticationForm, self).__init__(*args, **kwargs)
+
+    def clean_uuid(self):
+        try:
+            return uuid.UUID(self.cleaned_data['uuid'])
+        except ValueError:
+            raise forms.ValidationError(_(u'Invalid UUID'))
