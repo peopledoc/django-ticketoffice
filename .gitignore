@@ -8,3 +8,6 @@
 
 # Compiled gettext catalogs.
 *.mo
+
+# vars
+/var/
