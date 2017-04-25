@@ -18,6 +18,8 @@ cfg_dir = os.path.join(root_dir, 'etc')
 
 # Applications, dependencies.
 INSTALLED_APPS = [
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     # Third-parties.
@@ -46,9 +48,6 @@ SECRET_KEY = 'Fake secret.'
 
 
 # Use django-nose.
-INSTALLED_APPS = list(INSTALLED_APPS) + [
-    'django_nose',
-]
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 nose_cfg_dir = os.path.join(cfg_dir, 'nose')
 NOSE_ARGS = [
