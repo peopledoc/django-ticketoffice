@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """Managers for models."""
-from djqmixin import Manager, QMixin
+from django.db.models import Manager
 
 from django_ticketoffice import exceptions
 
 
-class CredentialsMixin(QMixin):
+class TicketManager(Manager):
+
     def authenticate(self, uuid, clear_password, place=u'', purpose=u''):
         try:
             ticket = self.get(uuid=uuid, place=place, purpose=purpose)
@@ -31,7 +32,3 @@ class CredentialsMixin(QMixin):
                     date=ticket.expiry_datetime))
         # Alright, return ticket.
         return ticket
-
-
-#: Manager for :py:class:`django_ticketoffice.models.Ticket`.
-TicketManager = Manager.include(CredentialsMixin)
