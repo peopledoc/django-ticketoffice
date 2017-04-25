@@ -24,16 +24,8 @@ from django_ticketoffice.settings import TICKETOFFICE_PASSWORD_GENERATOR
 
 
 def is_valid_password(password):
-    if django.VERSION[0] == 1 and django.VERSION[1] == 5:
-        return password == hashers.UNUSABLE_PASSWORD
-
-    elif django.VERSION[0] == 1 and django.VERSION[1] == 6:
-        return password[0] == hashers.UNUSABLE_PASSWORD_PREFIX\
-            and len(password[1:]) == hashers.UNUSABLE_PASSWORD_SUFFIX_LENGTH
-
-    else:
-        raise Exception(
-            'Django not supported: {0}.{1}.{2}'.format(django.VERSION))
+    return password[0] == hashers.UNUSABLE_PASSWORD_PREFIX\
+        and len(password[1:]) == hashers.UNUSABLE_PASSWORD_SUFFIX_LENGTH
 
 
 class TicketModelTestCase(django.test.TestCase):
@@ -382,15 +374,14 @@ class InvitationRequiredTestCase(unittest.TestCase):
         # Setup.
         self.request.session = {}
         self.request.GET = mock.MagicMock()
-        form_mock = mock.Mock()
-        form_mock.is_valid.return_value = False
-        form_class_mock = mock.Mock(return_value=form_mock)
-        with mock.patch('django_ticketoffice.decorators'
-                        '.TicketAuthenticationForm', new=form_class_mock):
+        with mock.patch(
+            'django_ticketoffice.decorators.TicketAuthenticationForm.is_valid',
+            return_value=False,
+        ) as is_valid_mock:
             # Run.
             response = self.run_decorated_view()
         # Check.
-        form_mock.assertCalledOnceWith(mock.sentinel.query_string)
+        self.assertTrue(is_valid_mock.called)
         self.forbidden_view.assert_called_once_with(self.request)
         self.assertEqual(response, self.forbidden_view.return_value)
         self.assertFalse(self.authorized_view.called)

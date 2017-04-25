@@ -2,7 +2,10 @@
 """Utilities that may be packaged in external libraries."""
 import os
 
+from collections import OrderedDict
+
 from django.views.generic import TemplateView
+from django.contrib.auth.hashers import BasePasswordHasher, mask_hash
 
 
 def random_unicode(min_length=None,
@@ -57,11 +60,6 @@ def random_password(min_length=16, max_length=32,
 
     """
     return random_unicode(min_length, max_length, alphabet)
-
-
-from collections import OrderedDict
-
-from django.contrib.auth.hashers import BasePasswordHasher, mask_hash
 
 
 class PlainPasswordHasher(BasePasswordHasher):

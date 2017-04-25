@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Models."""
 from functools import partial
+from uuid import uuid4
 
 from django.db import models
 from django.utils.timezone import now
@@ -8,7 +9,6 @@ from django.contrib.auth import hashers
 from django.contrib.auth.models import AnonymousUser
 
 from jsonfield import JSONField
-from uuidfield import UUIDField
 
 from django_ticketoffice.managers import TicketManager
 from django_ticketoffice import settings
@@ -18,7 +18,7 @@ from django_ticketoffice.utils import import_member
 class Ticket(models.Model):
     """Tickets are generic one-shot credentials."""
     #: Unique identifier for the ticket.
-    uuid = UUIDField(auto=True, hyphenate=True)
+    uuid = models.UUIDField(default=uuid4)
 
     #: Encrypted password for the ticket.
     password = models.CharField(max_length=255,

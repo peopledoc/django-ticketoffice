@@ -1,8 +1,9 @@
 language: python
 env:
   matrix:
-  - TOXENV=py27-dj15
-  - TOXENV=py27-dj16
+  - TOXENV=py27-dj18
+  - TOXENV=py27-dj19
+  - TOXENV=py27-dj110
   - TOXENV=flake8
   - TOXENV=sphinx
   - TOXENV=readme
