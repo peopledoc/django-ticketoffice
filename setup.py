@@ -30,7 +30,7 @@ KEYWORDS = [
 ]
 PACKAGES = [NAME.replace('-', '_')]
 REQUIREMENTS = [
-    'Django>=1.8,<1.11',
+    'Django>=1.8,<2',
     'django-floppyforms',
     'django-jsonfield',
     'django-qmixin',
