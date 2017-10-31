@@ -33,7 +33,6 @@ REQUIREMENTS = [
     'Django>=1.8,<2',
     'django-floppyforms',
     'django-jsonfield',
-    'django-qmixin',
     'setuptools',
 ]
 if IS_PYTHON2:
