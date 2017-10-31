@@ -8,7 +8,7 @@ about future releases, check `milestones`_ and :doc:`/about/vision`.
 0.4 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Add Django 1.11 support
 
 
 0.3 (2017-04-25)
