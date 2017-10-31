@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Managers for models."""
 from django.db.models import Manager
+from django.core.exceptions import ValidationError
 
 from django_ticketoffice import exceptions
 
@@ -14,7 +15,7 @@ class TicketManager(Manager):
             raise exceptions.CredentialsError(
                 'No ticket with UUID "{uuid}" for place "{place}" and purpose '
                 '"{purpose}"'.format(uuid=uuid, place=place, purpose=purpose))
-        except ValueError:
+        except (ValueError, ValidationError):
             raise exceptions.CredentialsError(
                 'Invalid UUID format for {uuid}'.format(uuid=uuid))
         # Check password.
