@@ -30,7 +30,7 @@ KEYWORDS = [
 ]
 PACKAGES = [NAME.replace('-', '_')]
 REQUIREMENTS = [
-    'Django>=1.8,<2',
+    'Django>=1.9,<2',
     'django-floppyforms',
     'psycopg2',
     'setuptools',

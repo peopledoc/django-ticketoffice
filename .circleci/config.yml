@@ -43,7 +43,7 @@ jobs:
             sudo pip install pip setuptools tox virtualenv
       - run:
           command: |
-            tox -e "py27-dj{18,19,110,111}"
+            tox -e "py27-dj{19,110,111}"
 
 workflows:
   version: 2
