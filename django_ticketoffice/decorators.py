@@ -31,7 +31,7 @@ def guest_login(request, invitation):
     request.user = GuestUser(invitation=invitation, invitation_valid=True)
     try:
         request.user.id = invitation.data['user']
-    except KeyError:
+    except (KeyError, TypeError):
         pass
 
 

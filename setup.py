@@ -32,7 +32,7 @@ PACKAGES = [NAME.replace('-', '_')]
 REQUIREMENTS = [
     'Django>=1.8,<2',
     'django-floppyforms',
-    'django-jsonfield',
+    'psycopg2',
     'setuptools',
 ]
 if IS_PYTHON2:
