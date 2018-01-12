@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """View decorators."""
+import json
 from functools import wraps
 from uuid import UUID
 
@@ -28,10 +29,17 @@ def guest_login(request, invitation):
         request.cache['invitation'] = invitation
     except AttributeError:
         setattr(request, 'cache', {'invitation': invitation})
+
     request.user = GuestUser(invitation=invitation, invitation_valid=True)
+
     try:
-        request.user.id = invitation.data['user']
-    except (KeyError, TypeError):
+        invitation_data = json.loads(invitation.data)
+    except (TypeError, ValueError):
+        return
+
+    try:
+        request.user.id = invitation_data['user']
+    except KeyError:
         pass
 
 

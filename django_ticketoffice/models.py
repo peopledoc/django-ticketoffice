@@ -31,7 +31,7 @@ class Ticket(models.Model):
 
     #: Data relative to the ticket.
     #: Serialized as JSON.
-    data = JSONField()
+    data = JSONField(default=dict)
 
     #: Date and time when the ticket was created.
     creation_datetime = models.DateTimeField(auto_now_add=True,
