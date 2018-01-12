@@ -3,9 +3,9 @@
 from __future__ import unicode_literals
 
 import django.contrib.auth.hashers
+from django.contrib.postgres.fields import JSONField
 from django.db import migrations, models
 import functools
-import jsonfield.fields
 import uuid
 
 
@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ('password', models.CharField(default=functools.partial(django.contrib.auth.hashers.make_password, *(None,), **{}), max_length=255)),
                 ('place', models.CharField(blank=True, db_index=True, max_length=50)),
                 ('purpose', models.CharField(blank=True, db_index=True, max_length=50)),
-                ('data', jsonfield.fields.JSONField(default=dict)),
+                ('data', JSONField(blank=True, default=dict, null=True)),
                 ('creation_datetime', models.DateTimeField(auto_now_add=True, db_index=True)),
                 ('expiry_datetime', models.DateTimeField(blank=True, db_index=True, default=None, null=True)),
                 ('usage_datetime', models.DateTimeField(blank=True, db_index=True, default=None, null=True)),

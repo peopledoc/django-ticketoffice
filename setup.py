@@ -30,9 +30,9 @@ KEYWORDS = [
 ]
 PACKAGES = [NAME.replace('-', '_')]
 REQUIREMENTS = [
-    'Django>=1.8,<2',
+    'Django>=1.9,<2',
     'django-floppyforms',
-    'django-jsonfield',
+    'psycopg2',
     'setuptools',
 ]
 if IS_PYTHON2:
