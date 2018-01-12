@@ -33,8 +33,11 @@ INSTALLED_APPS = [
 # Databases.
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(data_dir, 'database.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ.get('PGNAME', 'ticketoffice'),
+        'USER': os.environ.get('PGUSER', 'ticketoffice'),
+        'PASSWORD': os.environ.get('PGPASS', 'ticketoffice'),
+        'HOST': os.environ.get('PGHOST', 'localhost'),
     }
 }
 

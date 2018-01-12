@@ -36,6 +36,11 @@ jobs:
   tests:
     docker:
       - image: circleci/python:2.7
+      - image: circleci/postgres:9.6
+        environment:
+          POSTGRES_PASSWORD: ticketoffice
+          POSTGRES_USER: ticketoffice
+          POSTGRES_DB: ticketoffice
     steps:
       - checkout
       - run:
