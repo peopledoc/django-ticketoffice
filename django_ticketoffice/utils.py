@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Utilities that may be packaged in external libraries."""
 import os
-
 from collections import OrderedDict
+from importlib import import_module
 
 from django.views.generic import TemplateView
 from django.contrib.auth.hashers import BasePasswordHasher, mask_hash
@@ -114,7 +114,7 @@ def import_member(import_string):
 
     """
     module_name, factory_name = import_string.rsplit('.', 1)
-    module = __import__(module_name, globals(), locals(), [factory_name], -1)
+    module = import_module(module_name)
     return getattr(module, factory_name)
 
 
@@ -129,7 +129,7 @@ class NotCallableError(TypeError):
 class Decorator(object):
     """Base class to create class-based decorators.
 
-    See: http://tech.novapost.fr/python-class-based-decorators-en.html
+    See: https://tech.people-doc.com/python-class-based-decorators.html
 
     Override :meth:`setup`, :meth:`run` or :meth:`decorate` to create custom
     decorators:

@@ -46,7 +46,7 @@ Clone `django-ticketoffice` repository (adapt to use your own fork):
 
 .. code:: sh
 
-   git clone git@github.com:novapost/django-ticketoffice.git
+   git clone git@github.com:peopledoc/django-ticketoffice.git
    cd django-ticketoffice/
 
 
@@ -75,9 +75,9 @@ See also ``make help``.
 
 .. target-notes::
 
-.. _`bugtracker`: https://github.com/novapost/django-ticketoffice/issues
+.. _`bugtracker`: https://github.com/peopledoc/django-ticketoffice/issues
 .. _`rebase`: http://git-scm.com/book/en/Git-Branching-Rebasing
-.. _`merge-based rebase`: http://tech.novapost.fr/psycho-rebasing-en.html
+.. _`merge-based rebase`: https://tech.people-doc.com/psycho-rebasing.html
 .. _`pip`: https://pypi.python.org/pypi/pip/
 .. _`tox`: http://tox.testrun.org
 .. _`Sphinx`: https://pypi.python.org/pypi/Sphinx/
