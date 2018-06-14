@@ -129,7 +129,7 @@ class NotCallableError(TypeError):
 class Decorator(object):
     """Base class to create class-based decorators.
 
-    See: http://tech.novapost.fr/python-class-based-decorators-en.html
+    See: https://tech.people-doc.com/python-class-based-decorators.html
 
     Override :meth:`setup`, :meth:`run` or :meth:`decorate` to create custom
     decorators:

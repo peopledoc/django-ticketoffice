@@ -18,7 +18,7 @@ ENTRY_POINTS = {
 }
 AUTHOR = u'Benoît Bryon'
 EMAIL = u'benoit@marmelune.net'
-URL = u'https://github.com/novapost/django-ticketoffice'
+URL = u'https://github.com/peopledoc/django-ticketoffice'
 CLASSIFIERS = ['Development Status :: 3 - Alpha',
                "Programming Language :: Python :: 2.7"]
 KEYWORDS = []
