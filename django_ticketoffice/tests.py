@@ -132,7 +132,7 @@ class TicketAuthenticationFormTestCase(unittest.TestCase):
     :py:class:`django_ticketoffice.forms.TicketAuthenticationForm`."""
     def test_clean_success(self):
         """TicketAuthenticationForm is valid if credentials syntax is ok."""
-        data = {'uuid': unicode(uuid.uuid4()), 'password': u'bar'}
+        data = {'uuid': str(uuid.uuid4()), 'password': u'bar'}
         form = forms.TicketAuthenticationForm(data=data)
         self.assertTrue(form.is_valid())
 
@@ -167,6 +167,7 @@ class InvitationRequiredTestCase(unittest.TestCase):
         super(InvitationRequiredTestCase, self).setUp()
         # Fake request and its positional and keywords arguments.
         self.request = mock.MagicMock()
+        self.request.path = b'/'
         self.request_args = ['fake_arg']
         self.request_kwargs = {'fake': 'kwarg'}
         # Mock user test function.
