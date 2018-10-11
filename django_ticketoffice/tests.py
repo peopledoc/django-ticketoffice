@@ -8,11 +8,10 @@ try:
 except ImportError:  # Python 2 fallback.
     import mock
 
-from django.conf import settings
 import django.test
-from django.test.utils import override_settings
-from django.utils.timezone import now
+from django.conf import settings
 from django.contrib.auth import hashers
+from django.utils.timezone import now
 
 from django_ticketoffice import decorators
 from django_ticketoffice import exceptions
@@ -35,8 +34,6 @@ class TicketModelTestCase(django.test.TestCase):
         self.assertTrue(isinstance(models.Ticket.objects,
                                    managers.TicketManager))
 
-    @override_settings(
-        TICKETOFFICE_PASSWORD_GENERATOR=TICKETOFFICE_PASSWORD_GENERATOR)
     def test_generate_password(self):
         """Ticket.generate_password return random (clear) password."""
         ticket = models.Ticket()
@@ -437,7 +434,7 @@ class InvitationRequiredTestCase(unittest.TestCase):
         decorator.forbidden.assert_called_once_with('fake request')
 
 
-def SettingsTestCase(self):
+class SettingsTestCase(django.test.TestCase):
     """Test suite around django.conf.settings."""
     def test_password_generator(self):
         """settings.TICKETOFFICE_PASSWORD_GENERATOR has default value."""
@@ -445,7 +442,27 @@ def SettingsTestCase(self):
 
     def test_password_generator_default(self):
         "django_ticketoffice.settings.TICKETOFFICE_PASSWORD_GENERATOR works."
-        import_path, args, kwargs = TICKETOFFICE_PASSWORD_GENERATOR
+        import_path, args, kwargs = settings.TICKETOFFICE_PASSWORD_GENERATOR
         generator = utils.import_member(import_path)
-        password = generator(args, kwargs)
+        password = generator(*args, **kwargs)
         self.assertTrue(password)
+
+
+class UtilsTestCase(unittest.TestCase):
+    def test_random_unicode(self):
+        password = utils.random_unicode(min_length=2, max_length=4)
+        self.assertTrue(len(password) >= 2)
+        self.assertTrue(len(password) <= 4)
+
+    def test_random_unicode_bad_length(self):
+        # min_length, max_length is None
+        with self.assertRaises(ValueError):
+            utils.random_unicode()
+
+        # min_length -1 ?
+        with self.assertRaises(ValueError):
+            utils.random_unicode(min_length=-1, max_length=10)
+
+        # max_length < min_length
+        with self.assertRaises(ValueError):
+            utils.random_unicode(min_length=10, max_length=1)
