@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Utilities that may be packaged in external libraries."""
-import os
+from random import SystemRandom
 from collections import OrderedDict
 from importlib import import_module
 
@@ -23,28 +23,19 @@ def random_unicode(min_length=None,
             raise ValueError("Provide min_length or max_length.")
         else:
             min_length = 1
+
     if max_length is None:
         max_length = min_length
+
     if min_length < 1:
         raise ValueError("Minimum length is 1.")
+
     if max_length < min_length:
         raise ValueError("Maximum length must be greater than minimum length.")
-    random_bytes = os.urandom((max_length + 1) * 2)
-    # Compute random length using 2 first bytes.
-    interval = max_length - min_length + 1
-    random_shift = ord(random_bytes[0])
-    random_number = ord(random_bytes[1])
-    length = min_length + (random_shift + random_number) % interval
-    # Compute random string.
-    interval = len(alphabet)
-    result = []
-    for index in range(1, length + 1):
-        index *= 2
-        random_shift = ord(random_bytes[index])
-        random_number = ord(random_bytes[index + 1])
-        random_char = alphabet[(random_shift + random_number) % interval]
-        result.append(random_char)
-    return u''.join(result)
+
+    random = SystemRandom()
+    length = random.randint(min_length, max_length)
+    return u''.join(random.choice(alphabet) for i in range(length))
 
 
 def random_password(min_length=16, max_length=32,
