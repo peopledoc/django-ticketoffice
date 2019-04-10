@@ -25,11 +25,7 @@ forbidden_view = ForbiddenView.as_view(
 def guest_login(request, invitation):
     """Perform guest login in request."""
     # Cache the invitation instance in request.
-    try:
-        request.cache['invitation'] = invitation
-    except AttributeError:
-        setattr(request, 'cache', {'invitation': invitation})
-
+    request.invitation = invitation
     request.user = GuestUser(invitation=invitation, invitation_valid=True)
 
     try:
@@ -192,8 +188,8 @@ def stamp_invitation(view_func):
         response = view_func(request, *args, **kwargs)
         # Stamp ticket if available.
         try:
-            invitation = request.cache['invitation']
-        except (AttributeError, KeyError):
+            invitation = request.invitation
+        except AttributeError:
             raise  # Invitation not request! Missing @invitation_required?
         invitation.use()
         return response

@@ -255,7 +255,6 @@ class InvitationRequiredTestCase(unittest.TestCase):
         invitation.uuid = fake_uuid
         self.assertTrue(invitation.is_valid())
         self.request.session = {'invitation': invitation}
-        self.request.cache = {}
         decorator = decorators.invitation_required(
             place=place,
             purpose=purpose)
@@ -274,7 +273,7 @@ class InvitationRequiredTestCase(unittest.TestCase):
         self.assertEqual(response, self.authorized_view.return_value)
         self.assertFalse(self.unauthorized_view.called)
         self.assertFalse(self.forbidden_view.called)
-        self.assertEqual(self.request.cache['invitation'], invitation)
+        self.assertEqual(self.request.invitation, invitation)
 
     def test_invalid_invitation_in_session(self):
         "invitation_required() with invalid guest session returns 403."

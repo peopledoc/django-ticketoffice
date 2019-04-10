@@ -8,7 +8,11 @@ about future releases, check `milestones`_ and :doc:`/about/vision`.
 0.8 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Avoid complex invitation caching on the request
+
+WARNING: cached `invitation` is now set directly on the current `request` by
+         the `invitation_required` decorator. It won't create or update
+         `request.cache` attribute with `dict` like `{"invitation": "xxx"}`.
 
 
 0.7 (2018-10-15)
