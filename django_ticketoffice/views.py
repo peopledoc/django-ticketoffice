@@ -17,8 +17,8 @@ class InvitationMixin(object):
             return self._invitation
         except AttributeError:
             try:
-                self._invitation = self.request.cache['invitation']
-            except (AttributeError, KeyError):
+                self._invitation = self.request.invitation
+            except AttributeError:
                 try:
                     ticket_uuid = UUID(self.request.session['invitation'])
                 except KeyError:
