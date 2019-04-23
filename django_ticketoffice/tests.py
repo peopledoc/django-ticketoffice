@@ -11,6 +11,7 @@ except ImportError:  # Python 2 fallback.
 import django.test
 from django.conf import settings
 from django.contrib.auth import hashers
+from django.core.management import call_command
 from django.utils.timezone import now
 
 from django_ticketoffice import decorators
@@ -465,3 +466,43 @@ class UtilsTestCase(unittest.TestCase):
         # max_length < min_length
         with self.assertRaises(ValueError):
             utils.random_unicode(min_length=10, max_length=1)
+
+
+class CommandsTestCase(django.test.TestCase):
+
+    def test_clean_tickets(self):
+        manager = models.Ticket.objects
+
+        expired_qs = models.Ticket.objects.filter(expiry_datetime__lt=now())
+        valid_qs = models.Ticket.objects.filter(expiry_datetime__gt=now())
+
+        # create 10 expired tickets
+        for x in range(10):
+            manager.create(expiry_datetime=now() - timedelta(days=x+1))
+
+        self.assertEqual(
+            expired_qs.count(),
+            10
+        )
+
+        # create 5 valid tickets
+        for x in range(5):
+            manager.create(expiry_datetime=now() + timedelta(days=x+1))
+
+        self.assertEqual(
+            valid_qs.count(),
+            5
+        )
+
+        # run the cleanup command
+        call_command('clean_tickets')
+
+        # test only expired tickets has been removed
+        self.assertEqual(
+            expired_qs.count(),
+            0
+        )
+        self.assertEqual(
+            valid_qs.count(),
+            5
+        )
