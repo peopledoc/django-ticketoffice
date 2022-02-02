@@ -5,7 +5,6 @@ from functools import wraps
 from uuid import UUID
 
 from django.http import HttpResponseRedirect
-from django.utils.decorators import available_attrs
 
 from django_ticketoffice import exceptions
 from django_ticketoffice.forms import TicketAuthenticationForm
@@ -182,7 +181,7 @@ class invitation_required(Decorator):
 
 
 def stamp_invitation(view_func):
-    @wraps(view_func, assigned=available_attrs(view_func))
+    @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
         # Execute view function.
         response = view_func(request, *args, **kwargs)

@@ -3,10 +3,7 @@
 from datetime import timedelta
 import uuid
 import unittest
-try:
-    from unittest import mock
-except ImportError:  # Python 2 fallback.
-    import mock
+from unittest import mock
 
 import django.test
 from django.conf import settings

@@ -8,8 +8,6 @@ from setuptools import setup
 
 #: Absolute path to directory containing setup.py file.
 here = os.path.abspath(os.path.dirname(__file__))
-#: Boolean, ``True`` if environment is running Python version 2.
-IS_PYTHON2 = sys.version_info[0] == 2
 
 
 NAME = 'django-ticketoffice'
@@ -34,8 +32,6 @@ REQUIREMENTS = [
     'psycopg2',
     'setuptools',
 ]
-if IS_PYTHON2:
-    REQUIREMENTS.append('mock')
 ENTRY_POINTS = {}
 SETUP_REQUIREMENTS = []
 TEST_REQUIREMENTS = []
