@@ -17,7 +17,7 @@ README = open(os.path.join(here, 'README.rst')).read()
 VERSION = open(os.path.join(here, 'VERSION')).read().strip()
 AUTHOR = u'Benoît Bryon'
 EMAIL = 'benoit@marmelune.net'
-URL = 'https://{name}.readthedocs.org/'.format(name=NAME)
+URL = f'https://{NAME}.readthedocs.org/'
 CLASSIFIERS = ['Development Status :: 3 - Alpha',
                'License :: OSI Approved :: BSD License',
                'Programming Language :: Python :: 2.7',

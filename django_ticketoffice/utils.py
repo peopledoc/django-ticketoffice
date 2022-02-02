@@ -205,8 +205,7 @@ class Decorator(object):
         """
         if not callable(func):
             raise NotCallableError(
-                'Cannot decorate non callable object "{func}"'
-                .format(func=func))
+                f'Cannot decorate non callable object "{func}"')
         self.decorated = func
         return self
 

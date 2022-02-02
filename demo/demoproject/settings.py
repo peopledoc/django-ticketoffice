@@ -42,7 +42,7 @@ DATABASES = {
 
 
 # URL configuration.
-ROOT_URLCONF = '{package}.urls'.format(package=__package__)
+ROOT_URLCONF = f'{__package__}.urls'
 
 
 # Fake secret key.

@@ -106,8 +106,8 @@ class invitation_required(Decorator):
                                           purpose=self.purpose)
             except Ticket.DoesNotExist:
                 raise exceptions.CredentialsError(
-                    'Ticket {uuid} in session no longer exists in database.'
-                    .format(uuid=invitation_uuid))
+                    f'Ticket {invitation_uuid} in session no longer exists in'
+                    ' database.')
 
     def get_ticket_from_credentials(self, request):
         """Return ticket instance from credentials in ``request.get``."""
@@ -123,18 +123,15 @@ class invitation_required(Decorator):
                                                 place=self.place,
                                                 purpose=self.purpose)
                 except Ticket.DoesNotExist:
+                    data_uuid = data['uuid']
                     raise exceptions.CredentialsError(
-                        'No ticket with UUID="{uuid}" for place="{place}" '
-                        'and purpose="{purpose}" in database.'
-                        .format(
-                            uuid=data['uuid'],
-                            place=self.place,
-                            purpose=self.purpose))
+                        f'No ticket with UUID="{data_uuid}" for '
+                        f'place="{self.place}" and purpose="{self.purpose}"'
+                        ' in database.')
                 # Check password.
                 if not ticket.authenticate(data['password']):
                     raise exceptions.CredentialsError(
-                        'Wrong password for ticket with UUID="{uuid}"'
-                        .format(uuid=ticket.uuid))
+                        f'Wrong password for ticket with UUID="{ticket.uuid}"')
                 return ticket
             else:
                 raise exceptions.CredentialsError('Invalid credentials.')
@@ -145,15 +142,13 @@ class invitation_required(Decorator):
         # Check usage.
         if self.ticket.used:
             raise exceptions.TicketUsedError(
-                'Ticket with UUID="{uuid}" was used at {date}'.format(
-                    uuid=self.ticket.uuid,
-                    date=self.ticket.usage_datetime))
+                f'Ticket with UUID="{self.ticket.uuid}" was used '
+                f'at {self.ticket.usage_datetime}')
         # Check expiry.
         if self.ticket.expired:
             raise exceptions.TicketExpiredError(
-                'Ticket with UUID="{uuid}" expired at {date}'.format(
-                    uuid=self.ticket.uuid,
-                    date=self.ticket.expiry_datetime))
+                f'Ticket with UUID="{self.ticket.uuid}" expired '
+                f'at {self.ticket.expiry_datetime}')
 
     def unauthorized(self, request, *args, **kwargs):
         """Return response when credentials are missing (no invitation)."""
