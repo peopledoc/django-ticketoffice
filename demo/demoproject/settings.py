@@ -24,7 +24,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     # Third-parties.
     'django_nose',
-    'floppyforms',
     # Project's.
     'django_ticketoffice',
 ]
