@@ -19,7 +19,7 @@ from django.core.wsgi import get_wsgi_application
 
 # DJANGO_SETTINGS_MODULE environment variable is required.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE",
-                      "{package}.settings".format(package=__package__))
+                      f"{__package__}.settings")
 
 
 # This application object is used by any WSGI server configured to use this

@@ -2,41 +2,41 @@ version: 2
 jobs:
   flake8:
     docker:
-      - image: circleci/python:2.7
+      - image: cimg/python:3.9.8
     steps:
       - checkout
       - run:
           command: |
-            sudo pip install pip setuptools tox virtualenv
+            pip install setuptools tox virtualenv
       - run:
           command: |
             tox -e flake8
   readme:
     docker:
-      - image: circleci/python:2.7
+      - image: cimg/python:3.9.8
     steps:
       - checkout
       - run:
           command: |
-            sudo pip install pip setuptools tox virtualenv
+            pip install setuptools tox virtualenv
       - run:
           command: |
             tox -e readme
   sphinx:
     docker:
-      - image: circleci/python:2.7
+      - image: cimg/python:3.9.8
     steps:
       - checkout
       - run:
           command: |
-            sudo pip install pip setuptools tox virtualenv
+            pip install setuptools tox virtualenv
       - run:
           command: |
             tox -e sphinx
-  tests-py27:
+  tests:
     docker:
-      - image: circleci/python:2.7
-      - image: circleci/postgres:9.6
+      - image: cimg/python:3.9.8
+      - image: cimg/postgres:14.1
         environment:
           POSTGRES_PASSWORD: ticketoffice
           POSTGRES_USER: ticketoffice
@@ -45,42 +45,10 @@ jobs:
       - checkout
       - run:
           command: |
-            sudo pip install pip setuptools tox virtualenv
+            pip install setuptools tox virtualenv
       - run:
           command: |
-            tox -e "py27-dj{111}"
-  tests-py35:
-    docker:
-      - image: circleci/python:3.5
-      - image: circleci/postgres:9.6
-        environment:
-          POSTGRES_PASSWORD: ticketoffice
-          POSTGRES_USER: ticketoffice
-          POSTGRES_DB: ticketoffice
-    steps:
-      - checkout
-      - run:
-          command: |
-            sudo pip install pip setuptools tox virtualenv
-      - run:
-          command: |
-            tox -e "py35-dj{111,20}"
-  tests-py36:
-    docker:
-      - image: circleci/python:3.6
-      - image: circleci/postgres:9.6
-        environment:
-          POSTGRES_PASSWORD: ticketoffice
-          POSTGRES_USER: ticketoffice
-          POSTGRES_DB: ticketoffice
-    steps:
-      - checkout
-      - run:
-          command: |
-            sudo pip install pip setuptools tox virtualenv
-      - run:
-          command: |
-            tox -e "py36-dj{111,20}"
+            tox -e py39-dj{2x,30,31,3x}
 
 workflows:
   version: 2
@@ -89,6 +57,4 @@ workflows:
       - flake8
       - readme
       - sphinx
-      - tests-py27
-      - tests-py35
-      - tests-py36
+      - tests

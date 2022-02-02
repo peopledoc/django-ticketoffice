@@ -24,7 +24,7 @@ Restrict some URL to guests with valid invitation tickets:
    @stamp_invitation  # Mark invitation as used right **after** view execution.
    def visit_louvre(request):
        ticket = request.cache['invitation']  # Set by `invitation_required`.
-       return u'Welcome to the Louvre museum {guest}'.format(
+       return 'Welcome to the Louvre museum {guest}'.format(
            guest=ticket.data['first_name'])
 
    urlpatterns = patterns('', url('^louvre$', visit_louvre, name='louvre'))

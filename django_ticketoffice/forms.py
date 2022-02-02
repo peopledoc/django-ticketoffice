@@ -4,7 +4,7 @@ import uuid
 
 from django.utils.translation import ugettext_lazy as _
 
-import floppyforms as forms
+from django import forms
 
 
 class TicketAuthenticationForm(forms.Form):

@@ -3,10 +3,7 @@
 from datetime import timedelta
 import uuid
 import unittest
-try:
-    from unittest import mock
-except ImportError:  # Python 2 fallback.
-    import mock
+from unittest import mock
 
 import django.test
 from django.conf import settings
@@ -39,7 +36,7 @@ class TicketModelTestCase(django.test.TestCase):
         """Ticket.generate_password return random (clear) password."""
         ticket = models.Ticket()
         self.assertTrue(is_valid_password(ticket.password))
-        generate_password_mock = mock.Mock(return_value=mock.sentinel.password)
+        generate_password_mock = mock.Mock(return_value='a-password')
         with mock.patch('django_ticketoffice.utils.random_password',
                         new=generate_password_mock):
             password = ticket.generate_password()
@@ -47,7 +44,7 @@ class TicketModelTestCase(django.test.TestCase):
         generate_password_mock.assert_called_once_with(
             *TICKETOFFICE_PASSWORD_GENERATOR[1],
             **TICKETOFFICE_PASSWORD_GENERATOR[2])
-        self.assertEqual(password, mock.sentinel.password)
+        self.assertEqual(password, 'a-password')
 
 
 class TicketManagerTestCase(django.test.TestCase):

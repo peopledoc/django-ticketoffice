@@ -185,7 +185,7 @@ html_sidebars = {
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = u'{project}doc'.format(project=project_slug)
+htmlhelp_basename = f'{project_slug}doc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -205,8 +205,8 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
     ('index',
-     u'{project}.tex'.format(project=project_slug),
-     u'{project} Documentation'.format(project=project),
+     f'{project_slug}.tex',
+     f'{project} Documentation',
      author,
      'manual'),
 ]
@@ -239,7 +239,7 @@ latex_documents = [
 man_pages = [
     ('index',
      project,
-     u'{project} Documentation'.format(project=project),
+     f'{project} Documentation',
      [author],
      1)
 ]
@@ -256,7 +256,7 @@ man_pages = [
 texinfo_documents = [
     ('index',
      project_slug,
-     u'{project} Documentation'.format(project=project),
+     f'{project} Documentation',
      author,
      project,
      'One line description of project.',

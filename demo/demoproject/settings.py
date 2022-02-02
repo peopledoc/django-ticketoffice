@@ -24,7 +24,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     # Third-parties.
     'django_nose',
-    'floppyforms',
     # Project's.
     'django_ticketoffice',
 ]
@@ -43,7 +42,7 @@ DATABASES = {
 
 
 # URL configuration.
-ROOT_URLCONF = '{package}.urls'.format(package=__package__)
+ROOT_URLCONF = f'{__package__}.urls'
 
 
 # Fake secret key.

@@ -8,8 +8,6 @@ from setuptools import setup
 
 #: Absolute path to directory containing setup.py file.
 here = os.path.abspath(os.path.dirname(__file__))
-#: Boolean, ``True`` if environment is running Python version 2.
-IS_PYTHON2 = sys.version_info[0] == 2
 
 
 NAME = 'django-ticketoffice'
@@ -19,10 +17,11 @@ README = open(os.path.join(here, 'README.rst')).read()
 VERSION = open(os.path.join(here, 'VERSION')).read().strip()
 AUTHOR = u'Benoît Bryon'
 EMAIL = 'benoit@marmelune.net'
-URL = 'https://{name}.readthedocs.org/'.format(name=NAME)
+URL = f'https://{NAME}.readthedocs.org/'
 CLASSIFIERS = ['Development Status :: 3 - Alpha',
                'License :: OSI Approved :: BSD License',
-               'Programming Language :: Python :: 2.7',
+               'Programming Language :: Python :: 3.8',
+               'Programming Language :: Python :: 3.9',
                'Framework :: Django']
 LICENSE = 'BSD'
 KEYWORDS = [
@@ -30,13 +29,10 @@ KEYWORDS = [
 ]
 PACKAGES = [NAME.replace('-', '_')]
 REQUIREMENTS = [
-    'Django>=1.11',
-    'django-floppyforms',
+    'Django>=2',
     'psycopg2',
     'setuptools',
 ]
-if IS_PYTHON2:
-    REQUIREMENTS.append('mock')
 ENTRY_POINTS = {}
 SETUP_REQUIREMENTS = []
 TEST_REQUIREMENTS = []
