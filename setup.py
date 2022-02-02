@@ -20,7 +20,8 @@ EMAIL = 'benoit@marmelune.net'
 URL = f'https://{NAME}.readthedocs.org/'
 CLASSIFIERS = ['Development Status :: 3 - Alpha',
                'License :: OSI Approved :: BSD License',
-               'Programming Language :: Python :: 2.7',
+               'Programming Language :: Python :: 3.8',
+               'Programming Language :: Python :: 3.9',
                'Framework :: Django']
 LICENSE = 'BSD'
 KEYWORDS = [
@@ -28,7 +29,7 @@ KEYWORDS = [
 ]
 PACKAGES = [NAME.replace('-', '_')]
 REQUIREMENTS = [
-    'Django>=1.11',
+    'Django>=2',
     'psycopg2',
     'setuptools',
 ]
