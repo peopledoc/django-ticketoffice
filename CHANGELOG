@@ -8,7 +8,10 @@ about future releases, check `milestones`_ and :doc:`/about/vision`.
 0.10 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- drop support for python3
+- drop support for django1.x
+- drop floppyforms
+- add support for django3.x
 
 
 0.9 (2019-04-23)
