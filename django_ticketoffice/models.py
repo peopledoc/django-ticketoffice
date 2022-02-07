@@ -6,7 +6,7 @@ from django.db import models
 from django.utils.timezone import now
 from django.contrib.auth import hashers
 from django.contrib.auth.models import AnonymousUser
-from django.contrib.postgres.fields import JSONField
+from django.db.models import JSONField
 
 from django_ticketoffice.managers import TicketManager
 from django_ticketoffice import settings
