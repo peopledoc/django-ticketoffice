@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Utilities that may be packaged in external libraries."""
 from random import SystemRandom
 from collections import OrderedDict
@@ -10,9 +9,9 @@ from django.contrib.auth.hashers import BasePasswordHasher, mask_hash
 
 def random_unicode(min_length=None,
                    max_length=None,
-                   alphabet=u'abcdefghijklmnopqrstuvwxyz'
-                            u'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-                            u'0123456789'):
+                   alphabet='abcdefghijklmnopqrstuvwxyz'
+                            'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+                            '0123456789'):
     """Return random unicode.
 
     .. note:: Uses :py:func:`os.urandom`.
@@ -35,7 +34,7 @@ def random_unicode(min_length=None,
 
     random = SystemRandom()
     length = random.randint(min_length, max_length)
-    return u''.join(random.choice(alphabet) for i in range(length))
+    return ''.join(random.choice(alphabet) for i in range(length))
 
 
 def random_password(min_length=16, max_length=32,
@@ -61,7 +60,7 @@ class PlainPasswordHasher(BasePasswordHasher):
         return ''
 
     def encode(self, password, salt):
-        return '%s$$%s' % (self.algorithm, password)
+        return f'{self.algorithm}$${password}'
 
     def verify(self, password, encoded):
         algorithm, hash = encoded.split('$$', 1)
@@ -117,7 +116,7 @@ class NotCallableError(TypeError):
     """Raised when operation requires a callable."""
 
 
-class Decorator(object):
+class Decorator:
     """Base class to create class-based decorators.
 
     See: https://tech.people-doc.com/python-class-based-decorators.html

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """API shortcuts for use in client applications."""
 from django_ticketoffice.exceptions import (
     CredentialsError,

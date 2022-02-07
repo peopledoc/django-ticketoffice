@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Python packaging."""
 import os
 import sys
@@ -15,7 +14,7 @@ DESCRIPTION = 'One-shot authentication (temporary credentials) utilities ' \
               'for Django.'
 README = open(os.path.join(here, 'README.rst')).read()
 VERSION = open(os.path.join(here, 'VERSION')).read().strip()
-AUTHOR = u'Benoît Bryon'
+AUTHOR = 'Benoît Bryon'
 EMAIL = 'benoit@marmelune.net'
 URL = f'https://{NAME}.readthedocs.org/'
 CLASSIFIERS = ['Development Status :: 3 - Alpha',

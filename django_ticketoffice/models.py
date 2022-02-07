@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Models."""
 from functools import partial
 from uuid import uuid4
@@ -115,7 +114,7 @@ class GuestUser(AnonymousUser):
     def __init__(self, invitation=None, invitation_valid=False):
         self.invitation = invitation
         self.invitation_valid = invitation_valid
-        super(GuestUser, self).__init__()
+        super().__init__()
 
     def is_authenticated(self):
         return self.invitation is not None and self.invitation_valid

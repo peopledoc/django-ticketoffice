@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Views."""
 from uuid import UUID
 
@@ -9,7 +8,7 @@ from django.contrib import messages
 from django_ticketoffice.models import Ticket
 
 
-class InvitationMixin(object):
+class InvitationMixin:
     "Mixin that extracts `invitation` property from request."
     @property
     def invitation(self):

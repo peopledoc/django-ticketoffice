@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """One-shot authentication service."""
 import pkg_resources
 

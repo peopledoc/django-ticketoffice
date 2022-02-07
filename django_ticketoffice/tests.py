@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tests."""
 from datetime import timedelta
 import uuid
@@ -52,17 +51,17 @@ class TicketManagerTestCase(django.test.TestCase):
     def test_defaults(self):
         """Ticket instance is created with expected defaults."""
         ticket = models.Ticket.objects.create()
-        self.assertNotEqual(ticket.uuid, u'')
+        self.assertNotEqual(ticket.uuid, '')
         self.assertTrue(is_valid_password(ticket.password))
         self.assertEqual(ticket.usage_datetime, None)
         self.assertEqual(ticket.expiry_datetime, None)
-        self.assertEqual(ticket.place, u'')
-        self.assertEqual(ticket.purpose, u'')
+        self.assertEqual(ticket.place, '')
+        self.assertEqual(ticket.purpose, '')
 
     def test_authenticate_success(self):
         """authenticate() returns Ticket instance on success."""
         manager = models.Ticket.objects
-        password = u'dummy password'
+        password = 'dummy password'
         original = manager.create()
         original.set_password(password)
         original.save()
@@ -74,24 +73,24 @@ class TicketManagerTestCase(django.test.TestCase):
         manager = models.Ticket.objects
         self.assertRaises(exceptions.CredentialsError,
                           manager.authenticate,
-                          u'foo', u'bar')
+                          'foo', 'bar')
 
     def test_authenticate_wrong_password(self):
         """authenticate() raise CredentialsError if password does not match."""
         manager = models.Ticket.objects
         original = manager.create()
-        original.set_password(u'right password')
+        original.set_password('right password')
         original.save()
         self.assertRaises(exceptions.CredentialsError,
                           manager.authenticate,
-                          original.uuid, u'wrong password')
+                          original.uuid, 'wrong password')
 
     def test_authenticate_expired(self):
         """authenticate() raise TicketExpiredError if Ticket expired."""
         manager = models.Ticket.objects
         original = manager.create(
             expiry_datetime=now() - timedelta(days=2))
-        password = u'dummy password'
+        password = 'dummy password'
         original.set_password(password)
         original.save()
         self.assertRaises(exceptions.TicketExpiredError,
@@ -103,7 +102,7 @@ class TicketManagerTestCase(django.test.TestCase):
         manager = models.Ticket.objects
         original = manager.create(
             expiry_datetime=now() + timedelta(days=2))
-        password = u'dummy password'
+        password = 'dummy password'
         original.set_password(password)
         original.save()
         found = manager.authenticate(original.uuid, password)
@@ -114,7 +113,7 @@ class TicketManagerTestCase(django.test.TestCase):
         manager = models.Ticket.objects
         original = manager.create(
             usage_datetime=now() - timedelta(days=2))
-        password = u'dummy password'
+        password = 'dummy password'
         original.set_password(password)
         original.save()
         self.assertRaises(exceptions.TicketUsedError,
@@ -127,24 +126,24 @@ class TicketAuthenticationFormTestCase(unittest.TestCase):
     :py:class:`django_ticketoffice.forms.TicketAuthenticationForm`."""
     def test_clean_success(self):
         """TicketAuthenticationForm is valid if credentials syntax is ok."""
-        data = {'uuid': str(uuid.uuid4()), 'password': u'bar'}
+        data = {'uuid': str(uuid.uuid4()), 'password': 'bar'}
         form = forms.TicketAuthenticationForm(data=data)
         self.assertTrue(form.is_valid())
 
     def test_clean_bad_uuid(self):
         """TicketAuthenticationForm is invalid if uuid has wrong format."""
         # Invalid.
-        data = {'uuid': 'foo', 'password': u'bar'}
+        data = {'uuid': 'foo', 'password': 'bar'}
         form = forms.TicketAuthenticationForm(data=data)
         self.assertFalse(form.is_valid())
         # Valid with dashes.
         data = {'uuid': '12345678-1234-5678-1234-567812345678',
-                'password': u'bar'}
+                'password': 'bar'}
         form = forms.TicketAuthenticationForm(data=data)
         self.assertTrue(form.is_valid())
         # Valid without dashes.
         data = {'uuid': '12345678123456781234567812345678',
-                'password': u'bar'}
+                'password': 'bar'}
         form = forms.TicketAuthenticationForm(data=data)
         self.assertTrue(form.is_valid())
 
@@ -159,7 +158,7 @@ class InvitationRequiredTestCase(unittest.TestCase):
     "Tests around :class:`django_ticketoffice.decorators.invitation_required`."
     def setUp(self):
         """Common setup: fake request, stub views, stub user test function."""
-        super(InvitationRequiredTestCase, self).setUp()
+        super().setUp()
         # Fake request and its positional and keywords arguments.
         self.request = mock.MagicMock()
         self.request.path = b'/'
@@ -169,14 +168,14 @@ class InvitationRequiredTestCase(unittest.TestCase):
         self.test_func = mock.MagicMock()
         # Mock unauthorized and forbidden views.
         self.unauthorized_view = mock.MagicMock(
-            return_value=u"401 - You may log in.")
+            return_value="401 - You may log in.")
         self.forbidden_view = mock.MagicMock(
-            return_value=u"403 - Insufficient privileges.")
+            return_value="403 - Insufficient privileges.")
         # Mock the view to decorate.
         self.authorized_view = mock.MagicMock(
-            return_value=u"200 - Greetings, Professor Falken.")
+            return_value="200 - Greetings, Professor Falken.")
 
-    def run_decorated_view(self, place=u'', purpose=u''):
+    def run_decorated_view(self, place='', purpose=''):
         """Setup, decorate and call view, then return response."""
         # Get decorator.
         decorator = decorators.invitation_required(
@@ -193,8 +192,8 @@ class InvitationRequiredTestCase(unittest.TestCase):
 
     def test_get_invitation_from_session(self):
         """invitation_required() reads invitation from session."""
-        place = u'louvre'
-        purpose = u'visit'
+        place = 'louvre'
+        purpose = 'visit'
         invitation = models.Ticket(place=place, purpose=purpose)
         fake_uuid = uuid.uuid4()
         invitation.uuid = fake_uuid
@@ -230,8 +229,8 @@ class InvitationRequiredTestCase(unittest.TestCase):
 
     def test_redirect_session(self):
         """invitation_required() stores invitation UUID in session."""
-        place = u'louvre'
-        purpose = u'visit'
+        place = 'louvre'
+        purpose = 'visit'
         invitation = models.Ticket(place=place, purpose=purpose)
         fake_uuid = uuid.uuid4()
         invitation.uuid = fake_uuid
@@ -246,8 +245,8 @@ class InvitationRequiredTestCase(unittest.TestCase):
     def test_valid_invitation_in_session(self):
         "invitation_required() with valid guest session runs decorated view."
         # Setup.
-        place = u'louvre'
-        purpose = u'visit'
+        place = 'louvre'
+        purpose = 'visit'
         fake_uuid = uuid.uuid4()
         invitation = models.Ticket(place=place, purpose=purpose)
         invitation.uuid = fake_uuid
@@ -279,8 +278,8 @@ class InvitationRequiredTestCase(unittest.TestCase):
         #
         # * fake invitation uuid in session
         # * Ticket.objects.get() returns expired ticket.
-        place = u'louvre'
-        purpose = u'visit'
+        place = 'louvre'
+        purpose = 'visit'
         fake_uuid = uuid.uuid4()
         invitation = models.Ticket(place=place, purpose=purpose,
                                    uuid=fake_uuid,
@@ -331,10 +330,10 @@ class InvitationRequiredTestCase(unittest.TestCase):
     def test_valid_invitation_in_get(self):
         "invitation_required() with valid credentials returns 302."
         # Setup.
-        place = u'louvre'
-        purpose = u'visit'
+        place = 'louvre'
+        purpose = 'visit'
         fake_uuid = uuid.uuid4()
-        password = u'secret'
+        password = 'secret'
         invitation = models.Ticket(place=place, purpose=purpose)
         invitation.uuid = fake_uuid
         invitation.set_password(password)
@@ -397,7 +396,7 @@ class InvitationRequiredTestCase(unittest.TestCase):
 
     def test_run_credentials_error(self):
         """invitation_required.run() calls forbidden() if CredentialsError."""
-        decorator = decorators.invitation_required(place=u'', purpose=u'')
+        decorator = decorators.invitation_required(place='', purpose='')
         decorator.get_ticket = mock.Mock(
             side_effect=exceptions.CredentialsError)
         decorator.forbidden = mock.Mock()
@@ -406,7 +405,7 @@ class InvitationRequiredTestCase(unittest.TestCase):
 
     def test_run_no_ticket_error(self):
         """invitation_required.run() calls unauthorized() if NoTicketError."""
-        decorator = decorators.invitation_required(place=u'', purpose=u'')
+        decorator = decorators.invitation_required(place='', purpose='')
         decorator.get_ticket = mock.Mock(side_effect=exceptions.NoTicketError)
         decorator.unauthorized = mock.Mock()
         decorator.run('fake request')
@@ -414,7 +413,7 @@ class InvitationRequiredTestCase(unittest.TestCase):
 
     def test_run_ticket_used_error(self):
         "invitation_required.run() calls forbidden() if TicketUsedError."
-        decorator = decorators.invitation_required(place=u'', purpose=u'')
+        decorator = decorators.invitation_required(place='', purpose='')
         decorator.get_ticket = mock.Mock(
             side_effect=exceptions.TicketUsedError)
         decorator.forbidden = mock.Mock()
@@ -423,7 +422,7 @@ class InvitationRequiredTestCase(unittest.TestCase):
 
     def test_run_ticket_expired_error(self):
         "invitation_required.run() calls forbidden() if TicketExpiredError."
-        decorator = decorators.invitation_required(place=u'', purpose=u'')
+        decorator = decorators.invitation_required(place='', purpose='')
         decorator.get_ticket = mock.Mock(
             side_effect=exceptions.TicketExpiredError)
         decorator.forbidden = mock.Mock()
