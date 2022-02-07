@@ -7,7 +7,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 NAME = 'demoproject'
 DESCRIPTION = 'Demo for django-ticketoffice.'
-README = open(os.path.join(here, 'README')).read()
+README = open(os.path.join(here, 'README.rst')).read()
 VERSION = open(os.path.join(os.path.dirname(here), 'VERSION')).read().strip()
 PACKAGES = ['demoproject']
 REQUIREMENTS = ['django-nose',
@@ -20,12 +20,9 @@ EMAIL = 'benoit@marmelune.net'
 URL = 'https://github.com/peopledoc/django-ticketoffice'
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
-    "Programming Language :: Python :: 2",
-    "Programming Language :: Python :: 2.7",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.5",
-    "Programming Language :: Python :: 3.6",
-
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    'Framework :: Django',
 ]
 KEYWORDS = []
 

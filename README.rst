@@ -20,7 +20,7 @@ Restrict some URL to guests with valid invitation tickets:
    from django.conf.urls import patterns, url
    from django_ticketoffice.decorators import invitation_required, stamp_invitation
 
-   @invitation_required(place=u'louvre', purpose=u'visit')
+   @invitation_required(place='louvre', purpose='visit')
    @stamp_invitation  # Mark invitation as used right **after** view execution.
    def visit_louvre(request):
        ticket = request.cache['invitation']  # Set by `invitation_required`.
@@ -36,13 +36,13 @@ Create and deliver tickets for this resource:
    from django.utils.timezone import now
    from django_ticketoffice.models import Ticket
 
-   ticket = Ticket(place=u'louvre', purpose=u'visit')
-   ticket.set_password(u'I love Paris')  # Encrypted in database.
+   ticket = Ticket(place='louvre', purpose='visit')
+   ticket.set_password('I love Paris')  # Encrypted in database.
    ticket.expiry_datetime = now() + timedelta(days=5)  # Optional.
-   ticket.data = {'first_name': u'Léonard'}  # Optional.
+   ticket.data = {'first_name': 'Léonard'}  # Optional.
    ticket.save()
 
-   credentials = {'uuid': ticket.uuid, 'password': u'I love Paris'}
+   credentials = {'uuid': ticket.uuid, 'password': 'I love Paris'}
    visit_url = reverse('louvre') + '?' + urlencode(credentials)
 
 `django-ticketoffice` focuses on authentication. It does not send invitation

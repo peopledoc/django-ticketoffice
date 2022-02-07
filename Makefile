@@ -1,6 +1,7 @@
 # Reference card for usual actions in development environment.
 #
-# For standard installation of django-ticketoffice as a library, see INSTALL.
+# For standard installation of django-ticketoffice as a library, see 
+# INSTALL.rst.
 #
 # For details about django-ticketoffice's development environment, see
 # CONTRIBUTING.rst.
