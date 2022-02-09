@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tests around project's readme file."""
 import os
 from StringIO import StringIO

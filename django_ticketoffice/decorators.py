@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """View decorators."""
 import json
 from functools import wraps

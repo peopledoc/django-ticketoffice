@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Python packaging."""
 import os
 from setuptools import setup
@@ -6,9 +5,9 @@ from setuptools import setup
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-NAME = u'demoproject'
-DESCRIPTION = u'Demo for django-ticketoffice.'
-README = open(os.path.join(here, 'README')).read()
+NAME = 'demoproject'
+DESCRIPTION = 'Demo for django-ticketoffice.'
+README = open(os.path.join(here, 'README.rst')).read()
 VERSION = open(os.path.join(os.path.dirname(here), 'VERSION')).read().strip()
 PACKAGES = ['demoproject']
 REQUIREMENTS = ['django-nose',
@@ -16,17 +15,14 @@ REQUIREMENTS = ['django-nose',
 ENTRY_POINTS = {
     'console_scripts': ['demo = demoproject.manage:main'],
 }
-AUTHOR = u'Benoît Bryon'
-EMAIL = u'benoit@marmelune.net'
-URL = u'https://github.com/peopledoc/django-ticketoffice'
+AUTHOR = 'Benoît Bryon'
+EMAIL = 'benoit@marmelune.net'
+URL = 'https://github.com/peopledoc/django-ticketoffice'
 CLASSIFIERS = [
     "Development Status :: 5 - Production/Stable",
-    "Programming Language :: Python :: 2",
-    "Programming Language :: Python :: 2.7",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.5",
-    "Programming Language :: Python :: 3.6",
-
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    'Framework :: Django',
 ]
 KEYWORDS = []
 

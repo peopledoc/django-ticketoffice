@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Demo for django-ticketoffice."""
 import pkg_resources
 

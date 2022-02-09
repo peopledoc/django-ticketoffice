@@ -13,7 +13,7 @@ If you want to install a development environment, you should go to
 Prerequisites
 *************
 
-* `Python`_ ==2.7.
+* `Python`_ >=3.8.
 
 
 ************

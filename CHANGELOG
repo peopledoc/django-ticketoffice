@@ -8,16 +8,18 @@ about future releases, check `milestones`_ and :doc:`/about/vision`.
 0.11 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Project cleanup
+- Remove deprecation warnings
 
 
 0.10 (2022-02-02)
 -----------------
 
-- drop support for python3
-- drop support for django1.x
-- drop floppyforms
-- add support for django3.x
+- Add python >= 3.8 support
+- Add django 3.x support
+- Drop python < 3.8 support
+- Drop django <= 2.2 support
+- Drop floppyforms
 
 
 0.9 (2019-04-23)

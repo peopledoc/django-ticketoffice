@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Managers for models."""
 from django.db.models import Manager
 from django.core.exceptions import ValidationError
@@ -8,7 +7,7 @@ from django_ticketoffice import exceptions
 
 class TicketManager(Manager):
 
-    def authenticate(self, uuid, clear_password, place=u'', purpose=u''):
+    def authenticate(self, uuid, clear_password, place='', purpose=''):
         try:
             ticket = self.get(uuid=uuid, place=place, purpose=purpose)
         except self.model.DoesNotExist:
